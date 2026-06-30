@@ -70,61 +70,123 @@ Grid::~Grid()
 void Grid::Update()
 {
     assert(mTetromino != nullptr);
-
-    bool bTetrominoAlive = true;
-    if (TimeManager::GetInstance()->HasTicked())
+    
+    // Update tetromino
     {
-        // Move down
-        TimeManager::GetInstance()->ResetTick();
+        bool bTetrominoAlive = true;
+        if (TimeManager::GetInstance()->HasTicked())
+        {
+            // Move down
+            TimeManager::GetInstance()->ResetTick();
 
-        bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
-    }
-    else
-    {
-        // Todo: Maybe change to switch case
-        KeyManager* keyManager = KeyManager::GetInstance();
-        if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
-        {
-            mTetromino->MoveOneStep(eDirection::Left, *this);
+            bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
         }
-        else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
+        else
         {
-            mTetromino->MoveOneStep(eDirection::Right, *this);
-        }
-        else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
-        {
-            mTetromino->RotateCW(*this);
-        }
-        else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
-        {
-            while (bTetrominoAlive)
+            // Todo: Maybe change to switch case
+            KeyManager* keyManager = KeyManager::GetInstance();
+            if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
             {
-                bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
+                mTetromino->MoveOneStep(eDirection::Left, *this);
+            }
+            else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
+            {
+                mTetromino->MoveOneStep(eDirection::Right, *this);
+            }
+            else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
+            {
+                mTetromino->RotateCW(*this);
+            }
+            else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
+            {
+                while (bTetrominoAlive)
+                {
+                    bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
+                }
+
+                assert(bTetrominoAlive == false);
+            }
+        }
+
+        if (bTetrominoAlive == false)
+        {
+            // Mark dead tetromino on grid 
+            for (const Position& blockPosition : mTetromino->GetBlockPositions())
+            {
+                mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
             }
 
-            assert(bTetrominoAlive == false);
+            // Todo: Use memory pool
+            delete mTetromino;
+            mTetromino = nullptr;
+
+            // Respawn tetromino
+            spawnTetromino(mNextTetrominoList.front());
+
+            mNextTetrominoList.pop_front();
+            addRandomTetromino(&mNextTetrominoList);
         }
-    }
-
-    if (bTetrominoAlive == false)
-    {
-        // Mark dead tetromino on grid 
-        for (const Position& blockPosition : mTetromino->GetBlockPositions())
-        {
-            mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
-        }
-        
-        // Todo: Use memory pool
-        delete mTetromino;
-        mTetromino = nullptr;
-
-        // Respawn tetromino
-        spawnTetromino(mNextTetrominoList.front());
-
-        mNextTetrominoList.pop_front();
-        addRandomTetromino(&mNextTetrominoList);
     }
     
+    // Destroy blocks and calculate scores
+    unsigned int addScore = 0;
+    {
+        unsigned int lineDestroyCount = 0;
+
+        for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row < GRID_ROW_SIZE - 1; ++row)
+        {
+            bool bLineFull = true;
+
+            for (unsigned int col = 1; col < GRID_COL_SIZE - 1; ++col)
+            {
+                if (mbGrid[row][col] == false)
+                {
+                    bLineFull = false;
+
+                    break;
+                }
+            }
+
+            if (bLineFull == false)
+            {
+                continue;
+            }
+
+            ++lineDestroyCount;
+            
+            for (unsigned int copyRow = row; copyRow >= SPAWN_ZONE_ROW_SIZE; --copyRow)
+            {
+                for (unsigned int copyCol = 1; copyCol < GRID_COL_SIZE - 1; ++copyCol)
+                {
+                    mbGrid[copyRow][copyCol] = mbGrid[copyRow - 1][copyCol];
+                }
+            }
+        }
+
+        switch (lineDestroyCount)
+        {
+        case 0:
+            addScore = 0;
+            break;
+        case 1:
+            addScore = 1;
+            break;
+        case 2:
+            addScore = 4;
+            break;
+        case 3:
+            addScore = 6;
+            break;
+        case 4:
+            addScore = 12;
+            break;
+        default:
+            assert(false);
+        }
+    }
+    
+
+
 }
 
 // Todo: HDC 인자 중 하나는 전달할 필요 없음
