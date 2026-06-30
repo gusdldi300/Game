@@ -14,13 +14,6 @@ const Vector2 Grid::GRID_START_POINT =
 };
 */
 
-const Position Grid::MOVE_POSITIONS[MAX_MOVE_POSITIONS_COUNT] =
-{
-    { 0, 1 },
-    { 1, 0 },
-    { 0, -1 }
-};
-
 const float Grid::BLOCK_LENGTH = 30.f;
 const float Grid::GRID_WIDTH = GRID_ROW_SIZE * BLOCK_LENGTH;
 const float Grid::GRID_HEIGHT = GRID_COL_SIZE * BLOCK_LENGTH;
@@ -30,7 +23,7 @@ Grid::Grid()
     , mTetromino(nullptr) // Todo: mTetromino to nullptr
 {
     // Todo: Make random tetromino
-    spawnTetromino(new ITetromino());
+    spawnTetromino(new ITetromino({ 0, 0 }));
     for (unsigned int i = 0; i < MAX_NEXT_TETROMINOS_COUNT; ++i)
     {
         addRandomTetromino(&mNextTetrominoList);
@@ -84,11 +77,7 @@ void Grid::Update()
         // Move down
         TimeManager::GetInstance()->ResetTick();
 
-        bTetrominoAlive = canTetrominoMoveOneStep(eDirection::Down);
-        if (bTetrominoAlive)
-        {
-            mTetromino->MoveOneStep(eDirection::Down);
-        }
+        bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
     }
     else
     {
@@ -96,41 +85,24 @@ void Grid::Update()
         KeyManager* keyManager = KeyManager::GetInstance();
         if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
         {
-            if (canTetrominoMoveOneStep(eDirection::Left))
-            {
-                mTetromino->MoveOneStep(eDirection::Left);
-            }
+            mTetromino->MoveOneStep(eDirection::Left, *this);
         }
         else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
         {
-            if (canTetrominoMoveOneStep(eDirection::Right))
-            {
-                mTetromino->MoveOneStep(eDirection::Right);
-            }
+            mTetromino->MoveOneStep(eDirection::Right, *this);
         }
         else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
         {
-            /*
-            if (canTetrominoRotateCW())
-            {
-                mTetromino->RotateCW();
-            }
-            */
-            mTetromino->RotateCW();
+            mTetromino->RotateCW(*this);
         }
         else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
         {
-            while (true)
+            while (bTetrominoAlive)
             {
-                if (canTetrominoMoveOneStep(eDirection::Down) == false)
-                {
-                    bTetrominoAlive = false;
-
-                    break;
-                }
-
-                mTetromino->MoveOneStep(eDirection::Down);
+                bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
             }
+
+            assert(bTetrominoAlive == false);
         }
     }
 
@@ -139,7 +111,7 @@ void Grid::Update()
         // Mark dead tetromino on grid 
         for (const Position& blockPosition : mTetromino->GetBlockPositions())
         {
-            mbGrid[blockPosition.Row][blockPosition.Col] = true;
+            mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
         }
         
         // Todo: Use memory pool
@@ -184,8 +156,8 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
 
     for (const Position& blockPosition : mTetromino->GetBlockPositions())
     {
-        int renderStartY = blockPosition.Row * BLOCK_LENGTH;
-        int renderStartX = blockPosition.Col * BLOCK_LENGTH;
+        int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
+        int renderStartX = blockPosition.GetCol() * BLOCK_LENGTH;
 
         Rectangle(memoryDeviceContext,
             renderStartX,
@@ -206,6 +178,7 @@ void Grid::spawnTetromino(Tetromino* tetromino)
     mTetromino = tetromino;
 
     // Todo: Magic number
+    mTetromino->ResetStates();
     mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
 }
 
@@ -214,7 +187,7 @@ void Grid::addRandomTetromino(std::list<Tetromino*>* outNextTetrominoList)
     assert(outNextTetrominoList->size() < MAX_NEXT_TETROMINOS_COUNT);
 
     // Todo: Make random Tetromino
-    outNextTetrominoList->push_back(new ITetromino());
+    outNextTetrominoList->push_back(new ITetromino({ 0, 0 }));
 }
 
 const bool* const* Grid::GetGrid() const
@@ -222,38 +195,3 @@ const bool* const* Grid::GetGrid() const
     return mbGrid;
 }
 
-bool Grid::canTetrominoMoveOneStep(eDirection tetrominoMoveDirection) const
-{
-    unsigned int dirIndex = static_cast<unsigned int>(tetrominoMoveDirection);
-
-    const std::vector<Position> blockPositions = mTetromino->GetBlockPositions();
-    for (const Position& blockPosition : mTetromino->GetBlockPositions())
-    {
-        int nextRow = blockPosition.Row + MOVE_POSITIONS[dirIndex].Row;
-        int nextCol = blockPosition.Col + MOVE_POSITIONS[dirIndex].Col;
-
-        if (canPlaceOnGrid({ nextRow, nextCol }) == false)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Grid::canTetrominoRotateCW() const
-{
-    for (const Position& blockPosition : mTetromino->GetBlockPositions())
-    {
-        // Todo: Use Position class
-        int nextRow = blockPosition.Col * -1;
-        int nextCol = blockPosition.Row;
-
-        if (canPlaceOnGrid({ nextRow, nextCol }) == false)
-        {
-            return false;
-        }
-    }
-
-    return false;
-}

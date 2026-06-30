@@ -10,7 +10,8 @@ enum class eRotationState
     Degree0,
     Degree90,
     Degree180,
-    Degree270
+    Degree270,
+    End
 };
 
 class Grid;
@@ -18,19 +19,28 @@ class Grid;
 class Tetromino
 {
 public:
-    Tetromino() = default;
+    Tetromino(Position moveOffset);
     virtual ~Tetromino() = default;
     
-    const std::vector<Position>& GetBlockPositions() const;
-    void MoveOneStep(eDirection direction);
+    virtual std::vector<Position> GetBlockPositions() const = 0;
+    bool MoveOneStep(eDirection direction, const Grid& grid);
     void MovePosition(Position position);
-    void RotateCW();
+
+    virtual bool RotateCW(const Grid& grid) = 0;
+
+    void ResetStates();
+
+protected:
+    bool canPlaceOnGrid(Position position, const Grid& grid) const;
+
+private:
+    static const Position ONE_STEP_MOVE_OFFSETS[];
 
 protected:
     // Todo: 센터 포지션 하나만 있으면, 나머지 좌표들 모두 계산 가능함. 이렇게 바꾸기
-    std::vector<Position> mBlockPositions;
+    //std::vector<Position> mBlockPositions;
 
-    //Position mMoveOffset;
-    //eRotationState mRotationState;
+    Position mMoveOffset;
+    eRotationState mRotationState;
 };
 

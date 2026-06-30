@@ -6,6 +6,8 @@
 #include "GraphicsObject.h"
 #include "Tetromino.h"
 
+class Position;
+
 class Grid : public GraphicsObject
 {
 public:
@@ -16,12 +18,6 @@ public:
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
     
     const bool* const* GetGrid() const;
-
-private:
-    bool canTetrominoMoveOneStep(eDirection tetrominoMoveDirection) const;
-    bool canTetrominoRotateCW() const;
-
-    inline bool canPlaceOnGrid(Position position) const;
 
 private:
     void spawnTetromino(Tetromino* tetromino);
@@ -38,8 +34,6 @@ public:
 
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT = 5U;
     static const unsigned int MAX_MOVE_POSITIONS_COUNT = 4U;
-
-    static const Position MOVE_POSITIONS[MAX_MOVE_POSITIONS_COUNT];
 
 private:
     static const unsigned int SPAWN_TETROMINO_ROW = 0U;
@@ -58,19 +52,4 @@ private:
     Tetromino* mTetromino;
 };
 
-inline bool Grid::canPlaceOnGrid(Position position) const
-{
-    // Todo: 경계가 헷갈림. 상수 수정 필요
-    if (position.Row <= 0 || position.Row >= Grid::GRID_ROW_SIZE - 1 ||
-        position.Col <= 0 || position.Col >= Grid::GRID_COL_SIZE - 1)
-    {
-        return false;
-    }
 
-    if (mbGrid[position.Row][position.Col])
-    {
-        return false;
-    }
-
-    return true;
-}

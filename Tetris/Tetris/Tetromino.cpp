@@ -2,20 +2,36 @@
 #include "Tetromino.h"
 #include "Grid.h"
 
-const std::vector<Position>& Tetromino::GetBlockPositions() const
+// Todo: MOVE_OFFSETS
+const Position Tetromino::ONE_STEP_MOVE_OFFSETS[] =
 {
-    return mBlockPositions;
+    { 0, 1 },
+    { 1, 0 },
+    { 0, -1 }
+};
+
+Tetromino::Tetromino(Position moveOffset)
+    : mMoveOffset(moveOffset)
+    , mRotationState(eRotationState::Degree0)
+{
 }
 
-void Tetromino::MoveOneStep(eDirection direction)
+bool Tetromino::MoveOneStep(eDirection direction, const Grid& grid)
 {
     unsigned int dirIndex = static_cast<unsigned int>(direction);
 
-    for (unsigned int i = 0; i < mBlockPositions.size(); ++i)
+    for (const Position& blockPosition : GetBlockPositions())
     {
-        mBlockPositions[i].Row += Grid::MOVE_POSITIONS[dirIndex].Row;
-        mBlockPositions[i].Col += Grid::MOVE_POSITIONS[dirIndex].Col;
+        Position nextPosition = blockPosition + ONE_STEP_MOVE_OFFSETS[dirIndex];
+        if (canPlaceOnGrid(nextPosition, grid) == false)
+        {
+            return false;
+        }
     }
+
+    mMoveOffset += Tetromino::ONE_STEP_MOVE_OFFSETS[dirIndex];
+
+    return true;
 }
 
 // Todo: Change to MovePositionOnGrid()
@@ -23,58 +39,32 @@ void Tetromino::MovePosition(Position position)
 {
     // Todo: position assert
 
-    for (Position& blockPosition : mBlockPositions)
-    {
-        blockPosition.Row += position.Row;
-        blockPosition.Col += position.Col;
-    }
+    mMoveOffset += position;
 }
 
-void Tetromino::RotateCW()
+void Tetromino::ResetStates()
 {
-    std::vector<Position> rotatedPositions;
+    mMoveOffset = { 0, 0 };
+    mRotationState = eRotationState::Degree0;
+}
 
-    // Use wall kick
-    for (int i = 0; i < mBlockPositions.size(); ++i)
+bool Tetromino::canPlaceOnGrid(Position position, const Grid& grid) const
+{
+    // Todo: 경계가 헷갈림. 상수 수정 필요
+    int positionRow = position.GetRow();
+    int positionCol = position.GetCol();
+
+    if (positionRow <= 0 || positionRow >= Grid::GRID_ROW_SIZE - 1 ||
+        positionCol <= 0 || positionCol >= Grid::GRID_COL_SIZE - 1)
     {
-        int nextRow = mBlockPositions[i].Col * -1;
-        int nextCol = mBlockPositions[i].Row;
-
-        rotatedPositions.push_back({ nextRow, nextCol });
+        return false;
     }
 
-    int minRow = 0;
-    int minCol = 0;
-
-    for (int i = 0; i < mBlockPositions.size(); ++i)
+    const bool* const* bGrid = grid.GetGrid();
+    if (bGrid[positionRow][positionCol])
     {
-        if (rotatedPositions[i].Row < minRow)
-        {
-            minRow = rotatedPositions[i].Row;
-        }
-
-        if (rotatedPositions[i].Col < minCol)
-        {
-            minCol = rotatedPositions[i].Col;
-        }
+        return false;
     }
 
-    if (minRow < 0) 
-    {
-        int offsetRow = minRow * -1; 
-        for (int i = 0; i < mBlockPositions.size(); ++i)
-        {
-            mBlockPositions[i].Row = rotatedPositions[i].Row + offsetRow;
-        }
-    }
-
-    if (minCol < 0) 
-    {
-        int offsetCol = minCol * -1;
-        for (int i = 0; i < mBlockPositions.size(); ++i)
-        {
-            mBlockPositions[i].Col = rotatedPositions[i].Col + offsetCol;
-        }
-    }
-
+    return true;
 }
