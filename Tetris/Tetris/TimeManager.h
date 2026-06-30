@@ -1,0 +1,37 @@
+#pragma once
+
+#include <wtypes.h>
+
+// Todo: ΩÃ±€≈œ¿∏∑Œ ∏∏µÈ¡ˆ æ æ∆µµ ±¶¬˙¿ª µË§µ
+class TimeManager
+{
+public:
+    static void CreateInstance();
+    static void DeleteInstance();
+    static TimeManager* GetInstance();
+
+    double GetFrameDeltaTime() const;
+    bool HasTicked() const;
+    void ResetTick();
+    
+    void Update();
+
+private:
+    TimeManager();
+    ~TimeManager() = default;
+
+private:
+    static TimeManager* mTimeManager;
+    
+    LARGE_INTEGER mCount;
+    LARGE_INTEGER mPrevCount;
+    LARGE_INTEGER mFrequency;
+
+    double mFrameDeltaTime;
+    double mAccumulatedFrameDeltaTime;
+    unsigned int mFrameCount;
+
+    double mTickRate;
+    bool mbTicked;
+};
+

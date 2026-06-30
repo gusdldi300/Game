@@ -1,11 +1,10 @@
-#*.sln
-#*.vcxproj
-#*.vcxproj.filters
+*.sln
+*.vcxproj
+*.vcxproj.filters
 *.clang-format
 *.ini
 *.iso
 *.ico
-*.CONERR$
 
 *.jpg
 *.png
