@@ -6,9 +6,8 @@
 #include <string>
 
 const float GraphicsGrid::BLOCK_LENGTH = 30.f;
-
-GraphicsGrid::GraphicsGrid(Vector2 position, int rowSize, int colSize)
-    : mPosition(position)
+GraphicsGrid::GraphicsGrid(Vector2 leftTopPosition, int rowSize, int colSize)
+    : mLeftTopPosition(leftTopPosition)
     , mGridRowSize(rowSize)
     , mGridColSize(colSize)
 {
@@ -20,7 +19,6 @@ GraphicsGrid::GraphicsGrid(Vector2 position, int rowSize, int colSize)
         memset(mbGrid[row], false, sizeof(bool) * mGridColSize);
     }
 
-    // Todo: Make as unmoveable block
     // Todo: row = SPAWN_ZONE_ROW_SIZE
     for (unsigned int row = 0; row < mGridRowSize; ++row)
     {
@@ -30,6 +28,7 @@ GraphicsGrid::GraphicsGrid(Vector2 position, int rowSize, int colSize)
 
     for (unsigned int col = 0; col < mGridColSize; ++col)
     {
+        mbGrid[0][col] = true;
         mbGrid[mGridRowSize - 1][col] = true;
     }
 }
@@ -54,38 +53,24 @@ GraphicsGrid::GraphicsGrid(Vector2 position, int rowSize, int colSize)
     //}
 //}
 
+
 // Todo: HDC 인자 중 하나는 전달할 필요 없음
 void GraphicsGrid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
 {
+    //Rectangle(memoryDeviceContext, -1, -1, windowResolution.x + 1, windowResolution.y + 1);
+
     // Draw grid
+    for (unsigned int row = 0; row < mGridRowSize; ++row)
     {
-        Rectangle(memoryDeviceContext, -1, -1, windowResolution.x + 1, windowResolution.y + 1);
-
-        for (unsigned int row = 0; row < mGridRowSize; ++row)
+        for (unsigned int col = 0; col < mGridColSize; ++col)
         {
-            for (unsigned int col = 0; col < mGridColSize; ++col)
+            if (mbGrid[row][col] == false)
             {
-                if (mbGrid[row][col] == false)
-                {
-                    continue;
-                }
-
-                int renderStartY = row * BLOCK_LENGTH;
-                int renderStartX = col * BLOCK_LENGTH;
-
-                Rectangle(memoryDeviceContext,
-                    renderStartX,
-                    renderStartY,
-                    renderStartX + BLOCK_LENGTH,
-                    renderStartY + BLOCK_LENGTH);
+                continue;
             }
-        }
 
-        /*
-        for (const Position& blockPosition : mTetromino->GetBlockPositions())
-        {
-            int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
-            int renderStartX = blockPosition.GetCol() * BLOCK_LENGTH;
+            int renderStartY = mLeftTopPosition.Y + (row * BLOCK_LENGTH);
+            int renderStartX = mLeftTopPosition.X + (col * BLOCK_LENGTH);
 
             Rectangle(memoryDeviceContext,
                 renderStartX,
@@ -93,25 +78,5 @@ void GraphicsGrid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POIN
                 renderStartX + BLOCK_LENGTH,
                 renderStartY + BLOCK_LENGTH);
         }
-        */
     }
-
-    // Draw strings
-    /*
-    {
-        std::wstring printScore = L"Score: " + std::to_wstring(mTotalScore);
-        std::wstring printLevel = L"Stage Level: " + std::to_wstring(mStageLevel);
-
-        // Todo: No magic number, move position
-        const float PRINT_OFFSET = 10.f;
-        const float PRINT_STRING_OFFSET = 30.f;
-
-        TextOut(memoryDeviceContext, 0, GRID_HEIGHT + PRINT_OFFSET, printScore.c_str(), printScore.length());
-        TextOut(memoryDeviceContext, 0, GRID_HEIGHT + PRINT_OFFSET + PRINT_STRING_OFFSET, printLevel.c_str(), printLevel.length());
-    }
-
-    BitBlt(windowDeviceContext, 0, 0, windowResolution.x, windowResolution.y,
-        memoryDeviceContext, 0, 0, SRCCOPY);
-    */
-
 }

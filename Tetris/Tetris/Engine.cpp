@@ -57,11 +57,16 @@ void Engine::Progress(std::vector<GraphicsGrid*> objects)
         object->Update();
     }
     */
+    // Todo: 사각형 크기 수정 필요함, 
+    Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
 
     for (GraphicsGrid* object : objects)
     {
         object->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
     }
+
+    BitBlt(mhWindowDeviceContext, 0, 0, mWindowResolution.x, mWindowResolution.y,
+           mhMemoryDeviceContext, 0, 0, SRCCOPY);
 }
 
 Engine::Engine(HWND hWindow, POINT resolution)

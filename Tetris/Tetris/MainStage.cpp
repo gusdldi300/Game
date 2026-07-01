@@ -20,8 +20,8 @@ const unsigned int MainStage::STAGE_LEVEL_REACH_SCORES[] =
 //const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
 //const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
 
-MainStage::MainStage(Tetromino* tetromino)
-    : GraphicsGrid({ 0.f, 0.f }, GRID_ROW_SIZE, GRID_COL_SIZE)
+MainStage::MainStage(Vector2 leftTopVector, Tetromino* tetromino)
+    : GraphicsGrid(leftTopVector, GRID_ROW_SIZE, GRID_COL_SIZE)
     , mTetromino(tetromino) // Todo: mTetromino to nullptr
 {
     // Todo: 시간 결합 문제
@@ -169,17 +169,14 @@ void MainStage::Update(TetrominoManager* tetrominoManager)
 // Todo: HDC 인자 중 하나는 전달할 필요 없음
 void MainStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
 {
-    // Todo: 사각형 크기 수정 필요함, 
-    // Todo: 전체 도화지가 지워지기 때문에, 높은 레벨로 올려야함
-
     GraphicsGrid::Render(windowDeviceContext, memoryDeviceContext, windowResolution);
 
     // Draw tetromino
     {
         for (const Position& blockPosition : mTetromino->GetBlockPositions())
         {
-            int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
-            int renderStartX = blockPosition.GetCol() * BLOCK_LENGTH;
+            int renderStartY = (blockPosition.GetRow() * BLOCK_LENGTH);
+            int renderStartX = (blockPosition.GetCol() * BLOCK_LENGTH);
 
             Rectangle(memoryDeviceContext,
                 renderStartX,
@@ -203,8 +200,10 @@ void MainStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT w
         TextOut(memoryDeviceContext, 0, GRID_HEIGHT + PRINT_OFFSET + PRINT_STRING_OFFSET, printLevel.c_str(), printLevel.length());
     }
 
+    /*
     BitBlt(windowDeviceContext, 0, 0, windowResolution.x, windowResolution.y,
         memoryDeviceContext, 0, 0, SRCCOPY);
+        */
 }
 
 void MainStage::spawnTetromino()

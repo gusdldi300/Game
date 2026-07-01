@@ -41,8 +41,8 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
 
     // 4. L 블록
     {
-        { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 2, 1 } },
         { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 } },
+        { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 2, 1 } },
         { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 2 } },
         { { 1, 2 }, { 2, 0 }, { 2, 1 }, { 2, 2 } }
     },
@@ -57,8 +57,8 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
 
     // 6. S 블록
     {
-        { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 2, 1 } },
         { { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 } }, 
+        { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 2, 1 } },
         { { 0, 1 }, { 1, 1 }, { 1, 2 }, { 2, 2 } },
         { { 1, 1 }, { 1, 2 }, { 2, 0 }, { 2, 1 } }
     },
@@ -159,7 +159,7 @@ bool Tetromino::canPlaceOnGrid(Position position, const MainStage& grid) const
     int positionRow = position.GetRow();
     int positionCol = position.GetCol();
 
-    if (positionRow < 0 || positionRow >= MainStage::GRID_ROW_SIZE - 1 ||
+    if (positionRow < MainStage::SPAWN_TETROMINO_ROW || positionRow >= MainStage::GRID_ROW_SIZE - 1 ||
         positionCol <= 0 || positionCol >= MainStage::GRID_COL_SIZE - 1)
     {
         return false;

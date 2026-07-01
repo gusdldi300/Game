@@ -6,25 +6,25 @@
 
 class Tetromino;
 
-class TetrominoManager //: public GraphicsGrid
+class TetrominoManager : public GraphicsGrid
 {
 public:
-    TetrominoManager();
+    TetrominoManager(Vector2 leftTopPosition);
     ~TetrominoManager();
+
+    void Update();
+    //void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution);
 
     void Release(Tetromino* tetromino);
     Tetromino* GetNextTetromino();
 
 private:
-    static const unsigned int MAX_NEXT_TETROMINOS_COUNT;
+    static const unsigned int GRID_ROW_SIZE;
+    static const unsigned int GRID_COL_SIZE;
 
-    Tetromino* mMainTetromino;
-    Tetromino* mHoldTetromino;
+    static const unsigned int MAX_NEXT_TETROMINOS_COUNT;
+    static const unsigned int MAX_NEXT_TETROMINOS_SHOW_COUNT;
 
     std::list<Tetromino*> mNextTetrominoList;
-
-    // Todo: To class GameInfo 
-    unsigned int mStageLevel;
-    unsigned int mTotalScore;
 };
 

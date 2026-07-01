@@ -13,7 +13,7 @@ class TetrominoManager;
 class MainStage : public GraphicsGrid
 {
 public:
-    MainStage(Tetromino* tetromino);
+    MainStage(Vector2 leftTopVector, Tetromino* tetromino);
     virtual ~MainStage();
 
     void Update(TetrominoManager* tetrominoManager);
@@ -27,8 +27,6 @@ private:
 public:
     // Todo: 수정 필요, 동적할당하기
     // Todo: 쓸모없는 정적 변수 너무 많음
-    static const unsigned int WALL_COL_SIZE = 2U;
-    static const unsigned int WALL_ROW_SIZE = 1U;
     static const unsigned int SPAWN_ZONE_ROW_SIZE = 2U;
 
     static const unsigned int GRID_ROW_SIZE = 20U + SPAWN_ZONE_ROW_SIZE + WALL_ROW_SIZE;
@@ -37,10 +35,10 @@ public:
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT = 5U;
     static const unsigned int MAX_MOVE_POSITIONS_COUNT = 4U;
 
-private:
-    static const unsigned int SPAWN_TETROMINO_ROW = 0U;
+    static const unsigned int SPAWN_TETROMINO_ROW = 1U;
     static const unsigned int SPAWN_TETROMINO_COL = 3U;
 
+private:
     static const Vector2 GRID_START_POINT;
     //static const float BLOCK_LENGTH;
     //static const float GRID_WIDTH;

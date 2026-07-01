@@ -65,11 +65,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Todo: Move to Tetris initialize()
     // Create objects
-    TetrominoManager* tetrominoManager = new TetrominoManager();
-
-    MainStage* grid = new MainStage(tetrominoManager->GetNextTetromino());
+    TetrominoManager* tetrominoManager = new TetrominoManager({ 500.f, 0.f });
+    MainStage* mainStage = new MainStage({ 0, 0 }, tetrominoManager->GetNextTetromino());
+    
     std::vector<GraphicsGrid*> objects;
-    objects.push_back(grid);
+    objects.push_back(mainStage);
+    objects.push_back(tetrominoManager);
 
     while (true)
     {
@@ -92,12 +93,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         TimeManager::GetInstance()->Update();
         KeyManager::GetInstance()->Update();
 
-        grid->Update(tetrominoManager);
+        mainStage->Update(tetrominoManager);
+        tetrominoManager->Update();
 
         Engine::GetInstance()->Progress(objects);
     }
 
-    delete grid;
+    delete mainStage;
     delete tetrominoManager;
 
     return (int) msg.wParam;
