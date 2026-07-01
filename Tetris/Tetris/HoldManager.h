@@ -4,23 +4,24 @@
 
 class Tetromino;
 
-class HoldManager
+class HoldManager : public GraphicsGrid
 {
 public:
     HoldManager(Vector2 leftTopPosition);
     virtual ~HoldManager() = default;
 
-    bool CanUseHold() const;
+    bool HasUsedHold() const;
     bool HasHold() const;
 
-    bool setHold(Tetromino* tetromino);
+    bool SetHold(Tetromino* holdTetromino);
+    Tetromino* UseHoldOrNull();
 
 public:
     static const unsigned int GRID_ROW_SIZE;
     static const unsigned int GRID_COL_SIZE;
 
 private:
-    bool mbUsedStage;
-    Tetromino* mTetrominoOrNull;
+    bool mbUsedHoldStage;
+    Tetromino* mHoldTetrominoOrNull;
 };
 

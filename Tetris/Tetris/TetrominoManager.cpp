@@ -40,7 +40,7 @@ TetrominoManager::~TetrominoManager()
 
 void TetrominoManager::Update()
 {
-    // Todo: Reset grid
+    // Todo: Reset grid, Erase
     {
         for (int row = 1; row < mGridRowSize - 1; ++row)
         {

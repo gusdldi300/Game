@@ -16,6 +16,13 @@ const unsigned int MainStage::STAGE_LEVEL_REACH_SCORES[] =
     3, 6, 10, 15
 };
 
+const Position MainStage::ONE_STEP_MOVE_OFFSETS[] =
+{
+    { 0, 1 },
+    { 1, 0 },
+    { 0, -1 }
+};
+
 //const float Grid::BLOCK_LENGTH = 30.f;
 //const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
 //const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
@@ -37,89 +44,153 @@ MainStage::~MainStage()
     delete[] mbGrid;
 }
 
-void MainStage::Update(TetrominoManager* tetrominoManager)
+bool MainStage::MoveTetrominoOneStep(eDirection direction)
 {
-    assert(mTetromino != nullptr);
-    
-    // Update tetromino
+    unsigned int dirIndex = static_cast<unsigned int>(direction);
+
+    for (const Position& blockPosition : mTetromino->GetBlockPositions())
     {
-        bool bTetrominoAlive = true;
-        if (TimeManager::GetInstance()->HasTicked())
+        Position nextPosition = blockPosition + ONE_STEP_MOVE_OFFSETS[dirIndex];
+        if (canPlaceOnGrid(nextPosition) == false)
         {
-            TimeManager::GetInstance()->ResetTick();
-
-            bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
+            return false;
         }
-        else
+    }
+
+    Position newPosition = mTetromino->GetPositionMoveOffset();
+    newPosition += MainStage::ONE_STEP_MOVE_OFFSETS[dirIndex];
+
+    mTetromino->MovePosition(newPosition);
+
+    return true;
+}
+
+bool MainStage::RotateTetrominoCW()
+{
+    unsigned int nextRotationStateIndex = (static_cast<unsigned int>(mTetromino->GetRotationState()) + 1);
+    nextRotationStateIndex %= static_cast<unsigned int>(eRotationState::End);
+
+    eRotationState nextRotationState = static_cast<eRotationState>(nextRotationStateIndex);
+
+    unsigned int typeIndex = static_cast<unsigned int>(mTetromino->GetType());
+
+    for (const Position& rotatedPosition : mTetromino->GetRotatedBlockPositions(nextRotationState))
+    {
+        if (canPlaceOnGrid(rotatedPosition) == false)
         {
-            // Todo: Maybe change to switch case
-            KeyManager* keyManager = KeyManager::GetInstance();
-            if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
-            {
-                // Todo: bool MoveTetrominoOneStep();
-                mTetromino->MoveOneStep(eDirection::Left, *this);
-            }
-            else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
-            {
-                mTetromino->MoveOneStep(eDirection::Right, *this);
-            }
-            else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
-            {
-                mTetromino->RotateCW(*this);
-            }
-            else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
-            {
-                while (bTetrominoAlive)
-                {
-                    bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
-                }
+            return false;
+        }
+    }
 
-                assert(bTetrominoAlive == false);
-            }
-            else if (keyManager->GetKeyState(eKey::A) == eKeyState::Press)
-            {
-                if (mbUsedHold == false)
-                {
-                    assert(mTetromino != nullptr);
+    mTetromino->RotateCW();
 
-                    if (mHoldTetrominoOrNull == nullptr)
-                    {
-                        mHoldTetrominoOrNull = mTetromino;
+    return true;
+}
 
-                        mTetromino = tetrominoManager->GetNextTetromino();
-                        spawnTetromino();
-                    }
-                    else
-                    {
-                        mTetromino = mHoldTetrominoOrNull;
-                        spawnTetromino();
-                        mHoldTetrominoOrNull = nullptr;
+bool MainStage::canPlaceOnGrid(Position position) const
+{
+    // Todo: 경계가 헷갈림. 상수 수정 필요
+    int positionRow = position.GetRow();
+    int positionCol = position.GetCol();
 
-                        mbUsedHold = true;
-                    }
-                }
-            }
+    if (positionRow < MainStage::SPAWN_TETROMINO_ROW || positionRow >= MainStage::GRID_ROW_SIZE - 1 ||
+        positionCol <= 0 || positionCol >= MainStage::GRID_COL_SIZE - 1)
+    {
+        return false;
+    }
+
+    if (mbGrid[positionRow][positionCol])
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void MainStage::UpdateTetromino(TetrominoManager* tetrominoManager, HoldManager* holdManager)
+{
+    bool bTetrominoAlive = true;
+
+    // Update tetromino
+    if (TimeManager::GetInstance()->HasTicked())
+    {
+        TimeManager::GetInstance()->ResetTick();
+
+        bTetrominoAlive = MoveTetrominoOneStep(eDirection::Down);
+    }
+    
+    // Todo: Maybe change to switch case
+    KeyManager* keyManager = KeyManager::GetInstance();
+    if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
+    {
+        // Todo: bool MoveTetrominoOneStep();
+        MoveTetrominoOneStep(eDirection::Left);
+    }
+    else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
+    {
+        MoveTetrominoOneStep(eDirection::Right);
+    }
+    else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
+    {
+        RotateTetrominoCW();
+    }
+    else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
+    {
+        while (bTetrominoAlive)
+        {
+            bTetrominoAlive = MoveTetrominoOneStep(eDirection::Down);
         }
 
-        // Todo: 상호참조 없애기
-        if (bTetrominoAlive == false)
+        assert(bTetrominoAlive == false);
+    }
+    else if (keyManager->GetKeyState(eKey::A) == eKeyState::Press)
+    {
+        // Use hold
+        if (holdManager->HasUsedHold() == false)
         {
-            // Mark dead tetromino on grid 
-            for (const Position& blockPosition : mTetromino->GetBlockPositions())
-            {
-                mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
-            }
+            assert(mTetromino != nullptr);
 
-            // Tetromino* ProvideNextTetromino();
+            if (holdManager->HasHold() == false)
             {
-                tetrominoManager->Release(mTetromino);
-
+                holdManager->SetHold(mTetromino);
+                
                 mTetromino = tetrominoManager->GetNextTetromino();
+                spawnTetromino();
+            }
+            else
+            {
+                mTetromino = holdManager->UseHoldOrNull();
+                assert(mTetromino != nullptr);
+
                 spawnTetromino();
             }
         }
     }
-    
+
+    // Todo: 상호참조 없애기
+    if (bTetrominoAlive == false)
+    {
+        // Mark dead tetromino on grid 
+        for (const Position& blockPosition : mTetromino->GetBlockPositions())
+        {
+            mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
+        }
+
+        // Tetromino* ProvideNextTetromino();
+        {
+            tetrominoManager->Release(mTetromino);
+
+            mTetromino = tetrominoManager->GetNextTetromino();
+            spawnTetromino();
+        }
+
+        // Todo: update Tetromino Manager
+    }
+}
+
+void MainStage::Update(TetrominoManager* tetrominoManager)
+{
+    // Todo: Info manager
     // Destroy lines and update score, stage level
     {
         unsigned int lineDestroyCount = 0;
@@ -240,7 +311,7 @@ void MainStage::spawnTetromino()
 
     // Todo: Magic number
     mTetromino->ResetStates();
-    mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL }, *this);
+    mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
 }
 
 const bool* const* MainStage::GetGrid() const

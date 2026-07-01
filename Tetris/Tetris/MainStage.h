@@ -17,6 +17,11 @@ public:
     MainStage(Vector2 leftTopVector, Tetromino* tetromino);
     virtual ~MainStage();
 
+    void UpdateTetromino(TetrominoManager* tetrominoManager, HoldManager* holdManager);
+
+    bool MoveTetrominoOneStep(eDirection direction);
+    bool RotateTetrominoCW();
+
     //void Update(TetrominoManager* tetrominoManager);
     void Update(TetrominoManager* tetrominoManager);
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
@@ -25,6 +30,7 @@ public:
 
 private:
     void spawnTetromino();
+    bool canPlaceOnGrid(Position position) const;
 
 public:
     // Todo: 수정 필요, 동적할당하기
@@ -49,6 +55,8 @@ private:
     static const unsigned int STAGES_COUNT;
     static const unsigned int STAGE_LEVEL_REACH_SCORES[];
     static const unsigned int MAX_STAGE_LEVEL;
+
+    static const Position ONE_STEP_MOVE_OFFSETS[];
 
     //bool** mbGrid;
     //bool mbGrid[GRID_ROW_SIZE][GRID_COL_SIZE];

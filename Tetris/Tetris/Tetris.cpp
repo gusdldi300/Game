@@ -1,6 +1,7 @@
 ﻿// Tetris.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
+#include <cassert>
 #include <iostream>
 
 #include "Tetris.h"
@@ -13,6 +14,7 @@
 #include "TetrominoManager.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
+#include "HoldManager.h"
 
 #define MAX_LOADSTRING 100
 
@@ -67,10 +69,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Create objects
     TetrominoManager* tetrominoManager = new TetrominoManager({ 500.f, 0.f });
     MainStage* mainStage = new MainStage({ 0, 0 }, tetrominoManager->GetNextTetromino());
-    
+    HoldManager* holdManager = new HoldManager({ 800.f, 0.f });
+
     std::vector<GraphicsGrid*> objects;
     objects.push_back(mainStage);
     objects.push_back(tetrominoManager);
+    objects.push_back(holdManager);
 
     while (true)
     {
@@ -93,6 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         TimeManager::GetInstance()->Update();
         KeyManager::GetInstance()->Update();
 
+        mainStage->UpdateTetromino(tetrominoManager, holdManager);
         mainStage->Update(tetrominoManager);
         tetrominoManager->Update();
 

@@ -33,16 +33,19 @@ public:
     Tetromino(eTetrominoType type);
     virtual ~Tetromino() = default;
     
+    Position GetPositionMoveOffset() const;
     std::vector<Position> GetBlockPositions() const;
-    bool MoveOneStep(eDirection direction, const MainStage& grid);
-    bool MovePosition(Position position, const MainStage& grid);
+    std::vector<Position> GetRotatedBlockPositions(eRotationState rotationState) const;
 
-    bool RotateCW(const MainStage& grid);
+    eRotationState GetRotationState() const;
+    eTetrominoType GetType() const;
+
+    void MovePosition(Position position);
+    void RotateCW();
 
     void ResetStates();
 
 protected:
-    bool canPlaceOnGrid(Position position, const MainStage& grid) const;
 
 public:
     static const unsigned int TYPES_COUNT;
@@ -50,7 +53,6 @@ public:
 private:
     static const unsigned int ROTATATION_STATES_COUNT;
     
-    static const Position ONE_STEP_MOVE_OFFSETS[];
     static const std::vector<Position> BLOCK_POSITIONS[][4];
 
 protected:
