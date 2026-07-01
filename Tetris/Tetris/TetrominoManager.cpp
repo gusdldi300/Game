@@ -4,7 +4,7 @@
 #include "Tetromino.h"
 #include "TetrominoManager.h"
 
-const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_COUNT = 50U;
+const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_COUNT = 70U;
 
 TetrominoManager::TetrominoManager()
     : mMainTetromino(new Tetromino(eTetrominoType::L))

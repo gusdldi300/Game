@@ -2,7 +2,7 @@
 #include <cassert>
 #include <string>
 
-#include "Grid.h"
+#include "MainStage.h"
 #include "KeyManager.h"
 #include "TimeManager.h"
 #include "Tetromino.h"
@@ -10,62 +10,34 @@
 #include "TetrominoManager.h"
 
 
-const unsigned int Grid::STAGES_COUNT = 5U;
-const unsigned int Grid::STAGE_LEVEL_REACH_SCORES[] =
+const unsigned int MainStage::STAGES_COUNT = 5U;
+const unsigned int MainStage::STAGE_LEVEL_REACH_SCORES[] =
 {
     3, 6, 10, 15
 };
 
-const float Grid::BLOCK_LENGTH = 30.f;
-const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
-const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
+//const float Grid::BLOCK_LENGTH = 30.f;
+//const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
+//const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
 
-Grid::Grid(Tetromino* tetromino)
-    : GraphicsObject({ 0.f, 0.f }, GRID_WIDTH, GRID_HEIGHT)
+MainStage::MainStage(Tetromino* tetromino)
+    : GraphicsGrid({ 0.f, 0.f }, GRID_ROW_SIZE, GRID_COL_SIZE)
     , mTetromino(tetromino) // Todo: mTetromino to nullptr
 {
-    mbGrid = new bool*[GRID_ROW_SIZE];
-    for (int row = 0; row < GRID_ROW_SIZE; ++row)
-    {
-        mbGrid[row] = new bool[GRID_COL_SIZE];
-
-        memset(mbGrid[row], false, sizeof(bool) * GRID_COL_SIZE);
-    }
-
-    // Todo: Make as unmoveable block
-    for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row < GRID_ROW_SIZE; ++row)
-    {
-        mbGrid[row][0] = true;
-        mbGrid[row][GRID_COL_SIZE - 1] = true;
-    }
-
-    for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
-    {
-        mbGrid[GRID_ROW_SIZE - 1][col] = true;
-    }
-
     // Todo: 시간 결합 문제
     spawnTetromino();
 }
 
-Grid::~Grid()
+MainStage::~MainStage()
 {
     for (int row = 0; row < GRID_ROW_SIZE; ++row)
     {
         delete[] mbGrid[row]; 
     }
     delete[] mbGrid;
-
-    while (mNextTetrominoList.empty() == false)
-    {
-        delete mNextTetrominoList.front();
-        mNextTetrominoList.pop_front();
-    }
-
-    delete mTetromino;
 }
 
-void Grid::Update(TetrominoManager* tetrominoManager)
+void MainStage::Update(TetrominoManager* tetrominoManager)
 {
     assert(mTetromino != nullptr);
     
@@ -195,35 +167,15 @@ void Grid::Update(TetrominoManager* tetrominoManager)
 }
 
 // Todo: HDC 인자 중 하나는 전달할 필요 없음
-void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
+void MainStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
 {
     // Todo: 사각형 크기 수정 필요함, 
     // Todo: 전체 도화지가 지워지기 때문에, 높은 레벨로 올려야함
 
-    // Draw grid
+    GraphicsGrid::Render(windowDeviceContext, memoryDeviceContext, windowResolution);
+
+    // Draw tetromino
     {
-        Rectangle(memoryDeviceContext, -1, -1, windowResolution.x + 1, windowResolution.y + 1);
-
-        for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
-        {
-            for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
-            {
-                if (mbGrid[row][col] == false)
-                {
-                    continue;
-                }
-
-                int renderStartY = row * BLOCK_LENGTH;
-                int renderStartX = col * BLOCK_LENGTH;
-
-                Rectangle(memoryDeviceContext,
-                    renderStartX,
-                    renderStartY,
-                    renderStartX + BLOCK_LENGTH,
-                    renderStartY + BLOCK_LENGTH);
-            }
-        }
-
         for (const Position& blockPosition : mTetromino->GetBlockPositions())
         {
             int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
@@ -243,6 +195,7 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
         std::wstring printLevel = L"Stage Level: " + std::to_wstring(mStageLevel);
 
         // Todo: No magic number, move position
+        const float GRID_HEIGHT = mGridRowSize * BLOCK_LENGTH;
         const float PRINT_OFFSET = 10.f;
         const float PRINT_STRING_OFFSET = 30.f;
         
@@ -254,7 +207,7 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
         memoryDeviceContext, 0, 0, SRCCOPY);
 }
 
-void Grid::spawnTetromino()
+void MainStage::spawnTetromino()
 {
     assert(mTetromino != nullptr);
 
@@ -263,7 +216,7 @@ void Grid::spawnTetromino()
     mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL }, *this);
 }
 
-const bool* const* Grid::GetGrid() const
+const bool* const* MainStage::GetGrid() const
 {
     return mbGrid;
 }

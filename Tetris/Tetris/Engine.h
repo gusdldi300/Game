@@ -3,7 +3,7 @@
 #include <wtypes.h>
 #include <vector>
 
-#include "GraphicsObject.h"
+#include "GraphicsGrid.h"
 
 class Engine
 {
@@ -16,7 +16,7 @@ public:
     HWND GetWindowHandle() const;
     POINT GetWindowResolution() const;
 
-    void Progress(std::vector<GraphicsObject*> objects);
+    void Progress(std::vector<GraphicsGrid*> objects);
 
 private:
     void update();

@@ -25,7 +25,7 @@ enum class eRotationState
     End
 };
 
-class Grid;
+class MainStage;
 
 class Tetromino
 {
@@ -34,15 +34,15 @@ public:
     virtual ~Tetromino() = default;
     
     std::vector<Position> GetBlockPositions() const;
-    bool MoveOneStep(eDirection direction, const Grid& grid);
-    bool MovePosition(Position position, const Grid& grid);
+    bool MoveOneStep(eDirection direction, const MainStage& grid);
+    bool MovePosition(Position position, const MainStage& grid);
 
-    bool RotateCW(const Grid& grid);
+    bool RotateCW(const MainStage& grid);
 
     void ResetStates();
 
 protected:
-    bool canPlaceOnGrid(Position position, const Grid& grid) const;
+    bool canPlaceOnGrid(Position position, const MainStage& grid) const;
 
 public:
     static const unsigned int TYPES_COUNT;

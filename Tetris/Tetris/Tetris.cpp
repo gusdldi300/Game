@@ -7,9 +7,9 @@
 #include "Engine.h"
 #include "framework.h"
 
-#include "GraphicsObject.h"
+#include "GraphicsGrid.h"
 #include "Block.h"
-#include "Grid.h"
+#include "MainStage.h"
 #include "TetrominoManager.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
@@ -67,8 +67,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Create objects
     TetrominoManager* tetrominoManager = new TetrominoManager();
 
-    Grid* grid = new Grid(tetrominoManager->GetNextTetromino());
-    std::vector<GraphicsObject*> objects;
+    MainStage* grid = new MainStage(tetrominoManager->GetNextTetromino());
+    std::vector<GraphicsGrid*> objects;
     objects.push_back(grid);
 
     while (true)

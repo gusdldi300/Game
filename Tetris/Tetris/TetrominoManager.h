@@ -2,11 +2,11 @@
 
 #include <list>
 
-#include "GraphicsObject.h"
+#include "GraphicsGrid.h"
 
 class Tetromino;
 
-class TetrominoManager //: public GraphicsObject
+class TetrominoManager //: public GraphicsGrid
 {
 public:
     TetrominoManager();
