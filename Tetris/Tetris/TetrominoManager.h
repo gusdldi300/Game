@@ -10,7 +10,7 @@ class TetrominoManager : public GraphicsGrid
 {
 public:
     TetrominoManager(Vector2 leftTopPosition);
-    ~TetrominoManager();
+    virtual ~TetrominoManager();
 
     void Update();
     //void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution);

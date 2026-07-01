@@ -13,6 +13,9 @@ public:
     //virtual void Update() = 0;
     virtual void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution);
 
+private:
+
+
 public:
     static const unsigned int WALL_COL_SIZE = 2U;
     static const unsigned int WALL_ROW_SIZE = 2U;
@@ -21,8 +24,6 @@ protected:
     static const float BLOCK_LENGTH;
 
     Vector2 mLeftTopPosition;
-    //float mWidth;
-    //float mHeight;
 
     int mGridRowSize;
     int mGridColSize;

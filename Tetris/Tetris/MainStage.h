@@ -9,6 +9,7 @@
 // Todo: #include, 전방선언 정리하기
 class Position;
 class TetrominoManager;
+class HoldManager;
 
 class MainStage : public GraphicsGrid
 {
@@ -16,6 +17,7 @@ public:
     MainStage(Vector2 leftTopVector, Tetromino* tetromino);
     virtual ~MainStage();
 
+    //void Update(TetrominoManager* tetrominoManager);
     void Update(TetrominoManager* tetrominoManager);
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
     
@@ -52,7 +54,10 @@ private:
     //bool mbGrid[GRID_ROW_SIZE][GRID_COL_SIZE];
     
     Tetromino* mTetromino;
+    Tetromino* mHoldTetrominoOrNull;
+    bool mbUsedHold;
 
+    // Todo: Move to Info class
     unsigned int mTotalScore;
     unsigned int mStageLevel;
 };

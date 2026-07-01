@@ -8,7 +8,7 @@
 #include "Tetromino.h"
 
 #include "TetrominoManager.h"
-
+#include "HoldManager.h"
 
 const unsigned int MainStage::STAGES_COUNT = 5U;
 const unsigned int MainStage::STAGE_LEVEL_REACH_SCORES[] =
@@ -56,6 +56,7 @@ void MainStage::Update(TetrominoManager* tetrominoManager)
             KeyManager* keyManager = KeyManager::GetInstance();
             if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
             {
+                // Todo: bool MoveTetrominoOneStep();
                 mTetromino->MoveOneStep(eDirection::Left, *this);
             }
             else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
@@ -75,8 +76,32 @@ void MainStage::Update(TetrominoManager* tetrominoManager)
 
                 assert(bTetrominoAlive == false);
             }
+            else if (keyManager->GetKeyState(eKey::A) == eKeyState::Press)
+            {
+                if (mbUsedHold == false)
+                {
+                    assert(mTetromino != nullptr);
+
+                    if (mHoldTetrominoOrNull == nullptr)
+                    {
+                        mHoldTetrominoOrNull = mTetromino;
+
+                        mTetromino = tetrominoManager->GetNextTetromino();
+                        spawnTetromino();
+                    }
+                    else
+                    {
+                        mTetromino = mHoldTetrominoOrNull;
+                        spawnTetromino();
+                        mHoldTetrominoOrNull = nullptr;
+
+                        mbUsedHold = true;
+                    }
+                }
+            }
         }
 
+        // Todo: 상호참조 없애기
         if (bTetrominoAlive == false)
         {
             // Mark dead tetromino on grid 
@@ -85,10 +110,13 @@ void MainStage::Update(TetrominoManager* tetrominoManager)
                 mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
             }
 
-            tetrominoManager->Release(mTetromino);
-            mTetromino = tetrominoManager->GetNextTetromino();
+            // Tetromino* ProvideNextTetromino();
+            {
+                tetrominoManager->Release(mTetromino);
 
-            spawnTetromino();
+                mTetromino = tetrominoManager->GetNextTetromino();
+                spawnTetromino();
+            }
         }
     }
     
