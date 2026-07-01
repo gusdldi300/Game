@@ -7,21 +7,21 @@
 #include "Tetromino.h"
 
 class Position;
+class TetrominoManager;
 
 class Grid : public GraphicsObject
 {
 public:
-    Grid();
+    Grid(Tetromino* tetromino);
     virtual ~Grid();
 
-    void Update() override;
+    void Update(TetrominoManager* tetrominoManager);
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
     
     const bool* const* GetGrid() const;
 
 private:
-    void spawnTetromino(Tetromino* tetromino);
-    void addRandomTetromino(std::list<Tetromino*>* outNextTetrominoList);
+    void spawnTetromino();
 
 public:
     // Todo: 수정 필요, 동적할당하기

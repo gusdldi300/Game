@@ -48,6 +48,7 @@ POINT Engine::GetWindowResolution() const
 // 매 프레임마다 호출됨
 void Engine::Progress(std::vector<GraphicsObject*> objects)
 {
+    /*
     TimeManager::GetInstance()->Update();
     KeyManager::GetInstance()->Update();
     
@@ -55,6 +56,7 @@ void Engine::Progress(std::vector<GraphicsObject*> objects)
     {
         object->Update();
     }
+    */
 
     for (GraphicsObject* object : objects)
     {

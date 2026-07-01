@@ -75,8 +75,8 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
     }
 };
 
-Tetromino::Tetromino(Position moveOffset, eTetrominoType type)
-    : mMoveOffset(moveOffset)
+Tetromino::Tetromino(eTetrominoType type)
+    : mMoveOffset({ 0, 0 })
     , mRotationState(eRotationState::Degree0)
     , mType(type)
 {
@@ -100,12 +100,15 @@ bool Tetromino::MoveOneStep(eDirection direction, const Grid& grid)
     return true;
 }
 
-// Todo: Change to MovePositionOnGrid()
-void Tetromino::MovePosition(Position position)
+bool Tetromino::MovePosition(Position position, const Grid& grid)
 {
     // Todo: position assert
+    if (canPlaceOnGrid(position, grid) == false)
+    {
+        return false;
+    }
 
-    mMoveOffset += position;
+    mMoveOffset = position;
 }
 
 std::vector<Position> Tetromino::GetBlockPositions() const
@@ -158,7 +161,7 @@ bool Tetromino::canPlaceOnGrid(Position position, const Grid& grid) const
     int positionRow = position.GetRow();
     int positionCol = position.GetCol();
 
-    if (positionRow <= 0 || positionRow >= Grid::GRID_ROW_SIZE - 1 ||
+    if (positionRow < 0 || positionRow >= Grid::GRID_ROW_SIZE - 1 ||
         positionCol <= 0 || positionCol >= Grid::GRID_COL_SIZE - 1)
     {
         return false;

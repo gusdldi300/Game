@@ -11,7 +11,6 @@ GraphicsObject::GraphicsObject(Vector2 position, float width, float height)
 {
 }
 
-
 //void GraphicsObject::Update()
 //{
     //float frameDeltaTime = static_cast<float>(TimeManager::GetInstance()->GetFrameDeltaTime());

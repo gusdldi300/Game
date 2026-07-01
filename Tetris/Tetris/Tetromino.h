@@ -30,12 +30,12 @@ class Grid;
 class Tetromino
 {
 public:
-    Tetromino(Position moveOffset, eTetrominoType type);
+    Tetromino(eTetrominoType type);
     virtual ~Tetromino() = default;
     
     std::vector<Position> GetBlockPositions() const;
     bool MoveOneStep(eDirection direction, const Grid& grid);
-    void MovePosition(Position position);
+    bool MovePosition(Position position, const Grid& grid);
 
     bool RotateCW(const Grid& grid);
 
@@ -52,8 +52,6 @@ private:
     
     static const Position ONE_STEP_MOVE_OFFSETS[];
     static const std::vector<Position> BLOCK_POSITIONS[][4];
-
-    
 
 protected:
     // Todo: 센터 포지션 하나만 있으면, 나머지 좌표들 모두 계산 가능함. 이렇게 바꾸기

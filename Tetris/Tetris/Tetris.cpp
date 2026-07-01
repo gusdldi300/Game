@@ -10,6 +10,9 @@
 #include "GraphicsObject.h"
 #include "Block.h"
 #include "Grid.h"
+#include "TetrominoManager.h"
+#include "TimeManager.h"
+#include "KeyManager.h"
 
 #define MAX_LOADSTRING 100
 
@@ -62,16 +65,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Todo: Move to Tetris initialize()
     // Create objects
-    {
-    }
+    TetrominoManager* tetrominoManager = new TetrominoManager();
 
-    // Todo: Draw grid
-    // Create grid
-    Grid* grid = new Grid();
+    Grid* grid = new Grid(tetrominoManager->GetNextTetromino());
     std::vector<GraphicsObject*> objects;
     objects.push_back(grid);
-
-    //std::vector<GraphicsObject> tetrominos;
 
     while (true)
     {
@@ -91,10 +89,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             continue;
         }
 
+        TimeManager::GetInstance()->Update();
+        KeyManager::GetInstance()->Update();
+
+        grid->Update(tetrominoManager);
+
         Engine::GetInstance()->Progress(objects);
     }
 
     delete grid;
+    delete tetrominoManager;
 
     return (int) msg.wParam;
 }

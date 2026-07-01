@@ -2,7 +2,7 @@
 
 #include <wtypes.h>
 
-// Todo: 싱글턴으로 만들지 않아도 괜찮을 듣ㅅ
+// Todo: 싱글턴으로 만들지 않아도 괜찮을 듯
 class TimeManager
 {
 public:

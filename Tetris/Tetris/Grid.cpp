@@ -1,12 +1,13 @@
 
 #include <cassert>
+#include <string>
 
 #include "Grid.h"
 #include "KeyManager.h"
 #include "TimeManager.h"
 #include "Tetromino.h"
-#include <string>
-#include <random>
+
+#include "TetrominoManager.h"
 
 
 const unsigned int Grid::STAGES_COUNT = 5U;
@@ -19,17 +20,10 @@ const float Grid::BLOCK_LENGTH = 30.f;
 const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
 const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
 
-Grid::Grid()
+Grid::Grid(Tetromino* tetromino)
     : GraphicsObject({ 0.f, 0.f }, GRID_WIDTH, GRID_HEIGHT)
-    , mTetromino(nullptr) // Todo: mTetromino to nullptr
+    , mTetromino(tetromino) // Todo: mTetromino to nullptr
 {
-    // Todo: Make random tetromino
-    spawnTetromino(new Tetromino({ 0, 0 }, eTetrominoType::J));
-    for (unsigned int i = 0; i < MAX_NEXT_TETROMINOS_COUNT; ++i)
-    {
-        addRandomTetromino(&mNextTetrominoList);
-    }
-
     mbGrid = new bool*[GRID_ROW_SIZE];
     for (int row = 0; row < GRID_ROW_SIZE; ++row)
     {
@@ -49,6 +43,9 @@ Grid::Grid()
     {
         mbGrid[GRID_ROW_SIZE - 1][col] = true;
     }
+
+    // Todo: 시간 결합 문제
+    spawnTetromino();
 }
 
 Grid::~Grid()
@@ -68,7 +65,7 @@ Grid::~Grid()
     delete mTetromino;
 }
 
-void Grid::Update()
+void Grid::Update(TetrominoManager* tetrominoManager)
 {
     assert(mTetromino != nullptr);
     
@@ -77,7 +74,6 @@ void Grid::Update()
         bool bTetrominoAlive = true;
         if (TimeManager::GetInstance()->HasTicked())
         {
-            // Move down
             TimeManager::GetInstance()->ResetTick();
 
             bTetrominoAlive = mTetromino->MoveOneStep(eDirection::Down, *this);
@@ -117,15 +113,10 @@ void Grid::Update()
                 mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
             }
 
-            // Todo: Use memory pool
-            delete mTetromino;
-            mTetromino = nullptr;
+            tetrominoManager->Release(mTetromino);
+            mTetromino = tetrominoManager->GetNextTetromino();
 
-            // Respawn tetromino
-            spawnTetromino(mNextTetrominoList.front());
-
-            mNextTetrominoList.pop_front();
-            addRandomTetromino(&mNextTetrominoList);
+            spawnTetromino();
         }
     }
     
@@ -263,34 +254,13 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
         memoryDeviceContext, 0, 0, SRCCOPY);
 }
 
-void Grid::spawnTetromino(Tetromino* tetromino)
+void Grid::spawnTetromino()
 {
-    assert(tetromino != nullptr);
-    assert(mTetromino == nullptr);
-
-    mTetromino = tetromino;
+    assert(mTetromino != nullptr);
 
     // Todo: Magic number
     mTetromino->ResetStates();
-    mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
-}
-
-void Grid::addRandomTetromino(std::list<Tetromino*>* outNextTetrominoList)
-{
-    assert(outNextTetrominoList->size() < MAX_NEXT_TETROMINOS_COUNT);
-
-    // Todo: 조금 더 자세히 알고 사용하기, 싱글턴 개체로 만들기
-    unsigned int randomNumber = 0;
-    {
-        std::random_device randomDevice;
-        std::mt19937 gen(randomDevice());
-        std::uniform_int_distribution<unsigned int> dis(0, Tetromino::TYPES_COUNT - 1);
-
-        randomNumber = dis(gen);
-    }
-
-    eTetrominoType type = static_cast<eTetrominoType>(randomNumber);
-    outNextTetrominoList->push_back(new Tetromino({ 0, 0 }, type));
+    mTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL }, *this);
 }
 
 const bool* const* Grid::GetGrid() const
