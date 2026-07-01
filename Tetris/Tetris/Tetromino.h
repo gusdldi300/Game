@@ -5,6 +5,17 @@
 #include "eDirection.h"
 #include "Position.h"
 
+enum class eTetrominoType
+{
+    I,
+    O,
+    T,
+    L,
+    J,
+    S,
+    Z
+};
+
 enum class eRotationState
 {
     Degree0,
@@ -19,22 +30,30 @@ class Grid;
 class Tetromino
 {
 public:
-    Tetromino(Position moveOffset);
+    Tetromino(Position moveOffset, eTetrominoType type);
     virtual ~Tetromino() = default;
     
-    virtual std::vector<Position> GetBlockPositions() const = 0;
+    std::vector<Position> GetBlockPositions() const;
     bool MoveOneStep(eDirection direction, const Grid& grid);
     void MovePosition(Position position);
 
-    virtual bool RotateCW(const Grid& grid) = 0;
+    bool RotateCW(const Grid& grid);
 
     void ResetStates();
 
 protected:
     bool canPlaceOnGrid(Position position, const Grid& grid) const;
 
+public:
+    static const unsigned int TYPES_COUNT;
+
 private:
+    static const unsigned int ROTATATION_STATES_COUNT;
+    
     static const Position ONE_STEP_MOVE_OFFSETS[];
+    static const std::vector<Position> BLOCK_POSITIONS[][4];
+
+    
 
 protected:
     // Todo: 센터 포지션 하나만 있으면, 나머지 좌표들 모두 계산 가능함. 이렇게 바꾸기
@@ -42,5 +61,6 @@ protected:
 
     Position mMoveOffset;
     eRotationState mRotationState;
+    eTetrominoType mType;
 };
 

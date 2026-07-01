@@ -4,26 +4,27 @@
 #include "Grid.h"
 #include "KeyManager.h"
 #include "TimeManager.h"
-#include "ITetromino.h"
+#include "Tetromino.h"
+#include <string>
+#include <random>
 
-// Todo: Make as class static
-/*
-const Vector2 Grid::GRID_START_POINT =
+
+const unsigned int Grid::STAGES_COUNT = 5U;
+const unsigned int Grid::STAGE_LEVEL_REACH_SCORES[] =
 {
-    0.f, 0.f
+    3, 6, 10, 15
 };
-*/
 
 const float Grid::BLOCK_LENGTH = 30.f;
-const float Grid::GRID_WIDTH = GRID_ROW_SIZE * BLOCK_LENGTH;
-const float Grid::GRID_HEIGHT = GRID_COL_SIZE * BLOCK_LENGTH;
+const float Grid::GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
+const float Grid::GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
 
 Grid::Grid()
     : GraphicsObject({ 0.f, 0.f }, GRID_WIDTH, GRID_HEIGHT)
     , mTetromino(nullptr) // Todo: mTetromino to nullptr
 {
     // Todo: Make random tetromino
-    spawnTetromino(new ITetromino({ 0, 0 }));
+    spawnTetromino(new Tetromino({ 0, 0 }, eTetrominoType::J));
     for (unsigned int i = 0; i < MAX_NEXT_TETROMINOS_COUNT; ++i)
     {
         addRandomTetromino(&mNextTetrominoList);
@@ -128,8 +129,7 @@ void Grid::Update()
         }
     }
     
-    // Destroy blocks and calculate scores
-    unsigned int addScore = 0;
+    // Destroy lines and update score, stage level
     {
         unsigned int lineDestroyCount = 0;
 
@@ -163,6 +163,7 @@ void Grid::Update()
             }
         }
 
+        unsigned int addScore = 0;
         switch (lineDestroyCount)
         {
         case 0:
@@ -183,9 +184,22 @@ void Grid::Update()
         default:
             assert(false);
         }
-    }
-    
 
+        mTotalScore += addScore;
+
+        unsigned int level = STAGES_COUNT;
+        for (unsigned int levelIndex = 0; levelIndex < STAGES_COUNT - 1; ++levelIndex)
+        {
+            if (mTotalScore <= STAGE_LEVEL_REACH_SCORES[levelIndex])
+            {
+                level = levelIndex + 1;
+
+                break;
+            }
+        }
+
+        mStageLevel = level;
+    }
 
 }
 
@@ -194,19 +208,35 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
 {
     // Todo: 사각형 크기 수정 필요함, 
     // Todo: 전체 도화지가 지워지기 때문에, 높은 레벨로 올려야함
-    Rectangle(memoryDeviceContext, -1, -1, windowResolution.x + 1, windowResolution.y + 1);
 
-    for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
+    // Draw grid
     {
-        for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
-        {
-            if (mbGrid[row][col] == false)
-            {
-                continue;
-            }
+        Rectangle(memoryDeviceContext, -1, -1, windowResolution.x + 1, windowResolution.y + 1);
 
-            int renderStartY = row * BLOCK_LENGTH;
-            int renderStartX = col * BLOCK_LENGTH;
+        for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
+        {
+            for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
+            {
+                if (mbGrid[row][col] == false)
+                {
+                    continue;
+                }
+
+                int renderStartY = row * BLOCK_LENGTH;
+                int renderStartX = col * BLOCK_LENGTH;
+
+                Rectangle(memoryDeviceContext,
+                    renderStartX,
+                    renderStartY,
+                    renderStartX + BLOCK_LENGTH,
+                    renderStartY + BLOCK_LENGTH);
+            }
+        }
+
+        for (const Position& blockPosition : mTetromino->GetBlockPositions())
+        {
+            int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
+            int renderStartX = blockPosition.GetCol() * BLOCK_LENGTH;
 
             Rectangle(memoryDeviceContext,
                 renderStartX,
@@ -216,16 +246,17 @@ void Grid::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT window
         }
     }
 
-    for (const Position& blockPosition : mTetromino->GetBlockPositions())
+    // Draw strings
     {
-        int renderStartY = blockPosition.GetRow() * BLOCK_LENGTH;
-        int renderStartX = blockPosition.GetCol() * BLOCK_LENGTH;
+        std::wstring printScore = L"Score: " + std::to_wstring(mTotalScore);
+        std::wstring printLevel = L"Stage Level: " + std::to_wstring(mStageLevel);
 
-        Rectangle(memoryDeviceContext,
-            renderStartX,
-            renderStartY,
-            renderStartX + BLOCK_LENGTH,
-            renderStartY + BLOCK_LENGTH);
+        // Todo: No magic number, move position
+        const float PRINT_OFFSET = 10.f;
+        const float PRINT_STRING_OFFSET = 30.f;
+        
+        TextOut(memoryDeviceContext, 0, GRID_HEIGHT + PRINT_OFFSET, printScore.c_str(), printScore.length());
+        TextOut(memoryDeviceContext, 0, GRID_HEIGHT + PRINT_OFFSET + PRINT_STRING_OFFSET, printLevel.c_str(), printLevel.length());
     }
 
     BitBlt(windowDeviceContext, 0, 0, windowResolution.x, windowResolution.y,
@@ -248,8 +279,18 @@ void Grid::addRandomTetromino(std::list<Tetromino*>* outNextTetrominoList)
 {
     assert(outNextTetrominoList->size() < MAX_NEXT_TETROMINOS_COUNT);
 
-    // Todo: Make random Tetromino
-    outNextTetrominoList->push_back(new ITetromino({ 0, 0 }));
+    // Todo: 조금 더 자세히 알고 사용하기, 싱글턴 개체로 만들기
+    unsigned int randomNumber = 0;
+    {
+        std::random_device randomDevice;
+        std::mt19937 gen(randomDevice());
+        std::uniform_int_distribution<unsigned int> dis(0, Tetromino::TYPES_COUNT - 1);
+
+        randomNumber = dis(gen);
+    }
+
+    eTetrominoType type = static_cast<eTetrominoType>(randomNumber);
+    outNextTetrominoList->push_back(new Tetromino({ 0, 0 }, type));
 }
 
 const bool* const* Grid::GetGrid() const
