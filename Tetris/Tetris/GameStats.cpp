@@ -1,20 +1,23 @@
 #include <cassert>
 
 #include "GameStats.h"
+#include "TickTimer.h"
 
-// Todo: duplicated
-const unsigned int GameStats::MAX_STAGE_LEVEL = 5U;
-const unsigned int GameStats::STAGES_COUNT = 5U;
-const unsigned int GameStats::STAGE_LEVEL_REACH_SCORES[] =
-{
-    3, 6, 10, 15
-};
+const unsigned int GameStats::SCORES_PER_CLEAR_LINE = 100U;
+const unsigned int GameStats::CLEAR_LINES_FOR_LEVEL_UP = 3U;
 
+// Todo: Magic number
 GameStats::GameStats()
     : mTotalScore(0)
+    , mTotalLinesCleared(0)
     , mStageLevel(1)
-    , mbLevelUp(false)
+    , mTickRate(2.0)
 {
+}
+
+unsigned int GameStats::GetTotalLinesCleared() const
+{
+    return mTotalLinesCleared;
 }
 
 unsigned int GameStats::GetTotalScore() const
@@ -27,54 +30,24 @@ unsigned int GameStats::GetStageLevel() const
     return mStageLevel;
 }
 
-bool GameStats::HasStageLevelUp() const
+bool GameStats::Ticked(TickTimer* tickTimer) const
 {
-    return mbLevelUp;
+    if (tickTimer->GetAccumulatedTime() >= mTickRate)
+    {
+        tickTimer->ResetTimer();
+
+        return true;
+    }
+
+    return false;
 }
 
-void GameStats::ProcessLineClear(unsigned int lineClearCount)
+void GameStats::UpdateInformationsFrom(unsigned int linesClearedCount)
 {
-    mbLevelUp = false;
+    mTotalLinesCleared += linesClearedCount;
+    mTotalScore += (linesClearedCount * SCORES_PER_CLEAR_LINE);
 
-    unsigned int addScore = 0;
-    switch (lineClearCount)
-    {
-    case 0:
-        // Do nothing
-        return; // Todo: Check later
-    case 1:
-        addScore = 1;
-        break;
-    case 2:
-        addScore = 4;
-        break;
-    case 3:
-        addScore = 6;
-        break;
-    case 4:
-        addScore = 12;
-        break;
-    default:
-        assert(false);
-    }
-
-    mTotalScore += addScore;
-
-    unsigned int level = mStageLevel;
-    for (unsigned int levelIndex = 0; levelIndex < MAX_STAGE_LEVEL - 1; ++levelIndex)
-    {
-        if (mTotalScore <= STAGE_LEVEL_REACH_SCORES[levelIndex])
-        {
-            level = levelIndex + 1;
-
-            break;
-        }
-    }
-
-    if (level > mStageLevel)
-    {
-        mbLevelUp = true;
-
-        mStageLevel = level;
-    }
+    mStageLevel = (mTotalLinesCleared / CLEAR_LINES_FOR_LEVEL_UP) + 1;
+    
+    mTickRate /= mStageLevel;
 }

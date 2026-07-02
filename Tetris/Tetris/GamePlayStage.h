@@ -9,10 +9,10 @@
 class GamePlayStage : public GameStage
 {
 public:
-    GamePlayStage(MainBoard* mainBoard, TetrominoManager* tetrominoManager, GameStats* gameStats);
-    virtual ~GamePlayStage() = default;
+    GamePlayStage();
+    virtual ~GamePlayStage();
 
-    void Update(double deltaTime);
+    void Update(double deltaTime) override;
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
 
 private:
@@ -22,9 +22,6 @@ private:
     MainBoard* mMainBoard;
     TetrominoManager* mTetrominoManager;
     GameStats* mGameStats;
-
-    // Timer
-    double mDropTimer;
-    double mTickRate;
+    TickTimer* mTickTimer;
 };
 

@@ -1,28 +1,95 @@
 
 #include <cassert>
-
-#include "GamePlayStage.h"
 #include <string>
 
-GamePlayStage::GamePlayStage(MainBoard* mainBoard, TetrominoManager* tetrominoManager, GameStats* gameStats)
+#include "GamePlayStage.h"
+#include "KeyManager.h"
+#include "TickTimer.h"
+
+GamePlayStage::GamePlayStage()
     : GameStage({ 300.f, 0 }) // Todo: Magic number
-    , mMainBoard(mainBoard)
-    , mTetrominoManager(tetrominoManager)
-    , mGameStats(gameStats)
+    , mTetrominoManager(new TetrominoManager({ 500.f, 0.f }))
+    //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
+    , mGameStats(new GameStats())
+    , mTickTimer(new TickTimer())
 {
+    mMainBoard = new MainBoard(mTetrominoManager->GetNextTetromino());
+}
+
+GamePlayStage::~GamePlayStage()
+{
+    delete mMainBoard;
+    delete mTetrominoManager;
+    delete mGameStats;
+    delete mTickTimer;
 }
 
 void GamePlayStage::Update(double deltaTime)
 {
-    unsigned int clearLinesCount = mMainBoard->ClearLines(mTetrominoManager);
+    bool bTetrominoAlive = true;
 
-    mGameStats->ProcessLineClear(clearLinesCount);
+    mTickTimer->AccumulatedTime(deltaTime);
+    if (mGameStats->Ticked(mTickTimer))
+    {
+        bTetrominoAlive = mMainBoard->MoveTetrominoOneStep(eDirection::Down);
+    }
+    
+    // Move tetromino on board
+    {
+        // Todo: Maybe change to switch case
+        KeyManager* keyManager = KeyManager::GetInstance();
+        if (keyManager->GetKeyState(eKey::Left) == eKeyState::Press)
+        {
+            mMainBoard->MoveTetrominoOneStep(eDirection::Left);
+        }
+        else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
+        {
+            mMainBoard->MoveTetrominoOneStep(eDirection::Right);
+        }
+        else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
+        {
+            mMainBoard->RotateTetrominoCW();
+        }
+        else if (keyManager->GetKeyState(eKey::Space) == eKeyState::Press)
+        {
+            while (bTetrominoAlive)
+            {
+                bTetrominoAlive = mMainBoard->MoveTetrominoOneStep(eDirection::Down);
+            }
+
+            assert(bTetrominoAlive == false);
+        }
+        else if (keyManager->GetKeyState(eKey::A) == eKeyState::Press)
+        {
+            mMainBoard->AddHold(mTetrominoManager);
+        }
+        else if (keyManager->GetKeyState(eKey::S) == eKeyState::Press)
+        {
+            mMainBoard->UseHold(mTetrominoManager);
+        }
+    }
+    
+    if (bTetrominoAlive)
+    {
+        return;
+    }
+
+    mMainBoard->LockDownTetromino(mTetrominoManager);
+
+    unsigned int clearLinesCount = mMainBoard->ClearFullLines();
+    if (clearLinesCount > 0)
+    {
+        mGameStats->UpdateInformationsFrom(clearLinesCount);
+    }
+
+    /*
     if (mGameStats->HasStageLevelUp())
     {
         //mMainBoard->mbUsedHold = true;
 
         // Todo: 속도 변경 등
     }
+    */
 }
 
 void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
@@ -59,7 +126,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
             }
 
             // Todo: Code duplicate, draw tetromino
-            drawTetromino(mLeftTopPosition, *mMainBoard->GetTetromino(), memoryDeviceContext);
+            drawTetromino(mLeftTopPosition, *mMainBoard->GetActiveTetromino(), memoryDeviceContext);
         }
     }
 

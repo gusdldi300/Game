@@ -48,24 +48,39 @@ POINT Engine::GetWindowResolution() const
 }
 
 // 매 프레임마다 호출됨
-void Engine::Progress(std::vector<GameStage*> objects)
+void Engine::Run()
 {
-    
-    // Todo: 사각형 크기 수정 필요함, 
-    Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
+    MSG msg;
 
-    for (GameStage* object : objects)
+    while (mbGameOn)
     {
-        object->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
-    }
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+            {
+                break;
+            }
 
-    BitBlt(mhWindowDeviceContext, 0, 0, mWindowResolution.x, mWindowResolution.y,
-           mhMemoryDeviceContext, 0, 0, SRCCOPY);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+
+            continue;
+        }
+
+        KeyManager::GetInstance()->Update();
+        update();
+
+        render();
+    }
 }
 
 Engine::Engine(HWND hWindow, POINT resolution)
     : mhWindow(hWindow)
     , mWindowResolution(resolution)
+    , mbGameOn(true)
+    , mGameplayStage(new GamePlayStage())
+    , mCurrentStage(mGameplayStage)
+    //mStartStage = new StartStage();
 {
     // Create window
     {
@@ -89,45 +104,45 @@ Engine::Engine(HWND hWindow, POINT resolution)
         DeleteObject(hOldBitMap);
     }
 
-    // Todo: 외부 Initialize()로 옮기는게 좋을지도
+    // Initialize timer
     {
-        //TimeManager::CreateInstance();
-        //KeyManager::CreateInstance();
-
-        //GraphicsObject* object = new Block();
-        //mGraphicsObjects.push_back(object);
+        QueryPerformanceFrequency(&mTimerFrequency);
+        QueryPerformanceCounter(&mPrevTime);
     }
+
 }
 
 Engine::~Engine()
 {
     ReleaseDC(mhWindow, mhWindowDeviceContext);
 
-    /*
-    unsigned int deleteObjectsSize = mGraphicsObjects.size();
-    for (unsigned int i = 0; i < deleteObjectsSize; ++i)
-    {
-        delete mGraphicsObjects[i];
-    }
-    */
+    delete mGameplayStage;
+    // delete mStatStage;
+    
+    mCurrentStage = nullptr;
 }
 
 void Engine::update()
 {
-    /*
-    for (GraphicsObject* object : mGraphicsObjects)
-    {
-        object->Update();
-    }
-    */
+    LARGE_INTEGER currentTime;
+    QueryPerformanceCounter(&currentTime);
+
+    double deltaTime = static_cast<double>(currentTime.QuadPart - mPrevTime.QuadPart) / mTimerFrequency.QuadPart;
+    mPrevTime = currentTime;
+
+    // Todo: 스테이지 전환 키 입력 검사 
+    // HandleGlobalInput(); 
+
+    assert(mCurrentStage != nullptr);
+    mCurrentStage->Update(deltaTime);
 }
 
 void Engine::render()
 {
-    /*
-    for (GraphicsObject* object : mGraphicsObjects)
-    {
-        object->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
-    }
-    */
+    Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
+
+    mCurrentStage->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
+
+    BitBlt(mhWindowDeviceContext, 0, 0, mWindowResolution.x, mWindowResolution.y,
+        mhMemoryDeviceContext, 0, 0, SRCCOPY);
 }

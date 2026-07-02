@@ -21,18 +21,24 @@ public:
     bool MoveTetrominoOneStep(eDirection direction);
     bool RotateTetrominoCW();
 
-    unsigned int ClearLines(TetrominoManager* tetrominoManager);
-    
+    bool AddHold(TetrominoManager* tetrominoManager);
+    bool UseHold(TetrominoManager* tetrominoManager);
+
+    unsigned int ClearFullLines();
+    void LockDownTetromino(TetrominoManager* tetrominoManager);
+
     const bool* const* GetGrid() const;
     
     // Todo: Check later
-    const Tetromino* GetTetromino() const;
+    const Tetromino* GetActiveTetromino() const;
     const Tetromino* GetHoldTetrominoOrNull() const;
-    const void SetTetromino(Tetromino* tetromino);
 
 private:
+    void releaseActiveTetromino(TetrominoManager* tetrominoManager);
+    void setNextTetrominoFrom(TetrominoManager* tetrominoManager);
+
     bool canPlaceOnGrid(Position position) const;
-    void spawnTetromino();
+    void respawnActiveTetromino();
 
 public:
     // Todo: 쓸모없는 정적 변수 너무 많음
@@ -54,7 +60,7 @@ private:
     static const Vector2 GRID_START_POINT;
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
-    Tetromino* mTetromino;
+    Tetromino* mActiveTetromino;
     
     Tetromino* mHoldTetrominoOrNull;
     bool mbHoldUsed;

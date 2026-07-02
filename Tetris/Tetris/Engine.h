@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "GameStage.h"
+#include "GamePlayStage.h"
 
 class Engine
 {
@@ -16,7 +17,7 @@ public:
     HWND GetWindowHandle() const;
     POINT GetWindowResolution() const;
 
-    void Progress(std::vector<GameStage*> objects);
+    void Run();
 
 private:
     void update();
@@ -35,5 +36,14 @@ private:
 
     HBITMAP mhBitMap;
     HDC mhMemoryDeviceContext;
+
+    //StartStage* mStartStage;
+    GamePlayStage* mGameplayStage;
+
+    GameStage* mCurrentStage;
+
+    bool mbGameOn;
+    LARGE_INTEGER mTimerFrequency;
+    LARGE_INTEGER mPrevTime;
 };
 

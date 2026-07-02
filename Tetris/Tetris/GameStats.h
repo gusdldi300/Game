@@ -1,26 +1,27 @@
 #pragma once
 
+class TickTimer;
+
 class GameStats
 {
 public:
     GameStats();
     virtual ~GameStats() = default;
 
+    unsigned int GetTotalLinesCleared() const;
     unsigned int GetTotalScore() const;
     unsigned int GetStageLevel() const;
+    bool Ticked(TickTimer* tickTimer) const;
 
-    bool HasStageLevelUp() const;
-    void ProcessLineClear(unsigned int lineClearCount);
+    void UpdateInformationsFrom(unsigned int linesClearedCount);
 
 private:
-    static const unsigned int STAGES_COUNT;
-    static const unsigned int STAGE_LEVEL_REACH_SCORES[];
-    static const unsigned int MAX_STAGE_LEVEL;
+    static const unsigned int SCORES_PER_CLEAR_LINE;
+    static const unsigned int CLEAR_LINES_FOR_LEVEL_UP;
 
     unsigned int mTotalScore;
+    unsigned int mTotalLinesCleared;
     unsigned int mStageLevel;
-    
-    // Todo: 변수 추가하는게 맞는지 확인
-    bool mbLevelUp;
+    double mTickRate;
 };
 

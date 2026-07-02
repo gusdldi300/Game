@@ -18,6 +18,7 @@
 #include "GameStage.h"
 #include "GamePlayStage.h"
 #include "Gamestats.h"
+#include "TickTimer.h"
 
 #define MAX_LOADSTRING 100
 
@@ -64,59 +65,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     POINT windowSize = { 1280, 768 };
     Engine::CreateInstance(shWindow, windowSize);
-    TimeManager::CreateInstance();
     KeyManager::CreateInstance();
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TETRIS));
-    MSG msg;
+    //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TETRIS));
 
-    // Todo: Move to Tetris initialize()
-    // Create objects
-    TetrominoManager* tetrominoManager = new TetrominoManager({ 500.f, 0.f });
-    MainBoard* mainStage = new MainBoard(tetrominoManager->GetNextTetromino());
-    //HoldManager* holdManager = new HoldManager({ 800.f, 0.f });
+    Engine::GetInstance()->Run();
 
-    //objects.push_back(mainStage);
-    //objects.push_back(tetrominoManager);
-    //objects.push_back(holdManager);
-
-    GameStats* gameStats = new GameStats();
-    GamePlayStage* gamePlayStage = new GamePlayStage(mainStage, tetrominoManager, gameStats);
-
-    std::vector<GameStage*> objects;
-    objects.push_back(gamePlayStage);
-
-    while (true)
-    {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            if (msg.message == WM_QUIT)
-            {
-                break;
-            }
-
-            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-
-            continue;
-        }
-
-        TimeManager::GetInstance()->Update();
-        KeyManager::GetInstance()->Update();
-
-        // Todo: Insert delta time
-        gamePlayStage->Update(5.0f);
-
-        Engine::GetInstance()->Progress(objects);
-    }
-
-    delete mainStage;
-    delete tetrominoManager;
-
-    return (int) msg.wParam;
+    //return (int) msg.wParam;
+    return 0;
 }
 
 

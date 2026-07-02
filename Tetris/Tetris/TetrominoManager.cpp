@@ -38,8 +38,6 @@ void TetrominoManager::Release(Tetromino* tetromino)
 {
     assert(tetromino != nullptr);
     
-    // Todo: 현재 들고 있는 메모리인지 확인해야함
-
     tetromino->ResetStates();
     mNextTetrominoList.push_back(tetromino);
 }
