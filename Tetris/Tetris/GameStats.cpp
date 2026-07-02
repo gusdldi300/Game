@@ -17,6 +17,16 @@ GameStats::GameStats()
 {
 }
 
+unsigned int GameStats::GetTotalScore() const
+{
+    return mTotalScore;
+}
+
+unsigned int GameStats::GetStageLevel() const
+{
+    return mStageLevel;
+}
+
 bool GameStats::HasStageLevelUp() const
 {
     return mbLevelUp;

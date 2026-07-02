@@ -1,11 +1,13 @@
 
 #include <cassert>
 
+#include "Block.h"
+
 #include "Engine.h"
+#include "GameStage.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
 
-#include "Block.h"
 
 // Todo: temp object
 
@@ -46,21 +48,13 @@ POINT Engine::GetWindowResolution() const
 }
 
 // 매 프레임마다 호출됨
-void Engine::Progress(std::vector<GraphicsGrid*> objects)
+void Engine::Progress(std::vector<GameStage*> objects)
 {
-    /*
-    TimeManager::GetInstance()->Update();
-    KeyManager::GetInstance()->Update();
     
-    for (GraphicsObject* object : objects)
-    {
-        object->Update();
-    }
-    */
     // Todo: 사각형 크기 수정 필요함, 
     Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
 
-    for (GraphicsGrid* object : objects)
+    for (GameStage* object : objects)
     {
         object->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
     }

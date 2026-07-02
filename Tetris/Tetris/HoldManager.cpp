@@ -6,12 +6,9 @@
 #include "TetrominoManager.h"
 #include "MainBoard.h"
 
-const unsigned int HoldManager::GRID_ROW_SIZE = 4U + WALL_ROW_SIZE;
-const unsigned int HoldManager::GRID_COL_SIZE = 6U + WALL_COL_SIZE;
 
 HoldManager::HoldManager(Vector2 leftTopPosition)
-    : GraphicsGrid(leftTopPosition, GRID_ROW_SIZE, GRID_COL_SIZE)
-    , mbUsedHoldStage(false)
+    : mbUsedHoldStage(false)
     , mHoldTetrominoOrNull(nullptr)
 {
 }
@@ -37,6 +34,7 @@ bool HoldManager::SetHold(Tetromino* holdTetromino)
     mHoldTetrominoOrNull->ResetStates();
 
     // Todo: Update grid, erase later
+    /*
     {
         for (int row = 1; row < mGridRowSize - 1; ++row)
         {
@@ -58,6 +56,7 @@ bool HoldManager::SetHold(Tetromino* holdTetromino)
             mbGrid[newBlockPosition.GetRow()][newBlockPosition.GetCol()] = true;
         }
     }
+    */
 
     return true;
 }
@@ -75,6 +74,7 @@ Tetromino* HoldManager::UseHoldOrNull()
     mHoldTetrominoOrNull = nullptr;
 
     // Todo: Code duplicate, erase later
+    /*
     {
         for (int row = 1; row < mGridRowSize - 1; ++row)
         {
@@ -84,6 +84,7 @@ Tetromino* HoldManager::UseHoldOrNull()
             }
         }
     }
+    */
 
     return pOutHold;
 }

@@ -8,13 +8,14 @@
 #include "Engine.h"
 #include "framework.h"
 
-#include "GraphicsGrid.h"
 #include "Block.h"
 #include "MainBoard.h"
 #include "TetrominoManager.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
 #include "HoldManager.h"
+
+#include "GameStage.h"
 #include "GamePlayStage.h"
 #include "Gamestats.h"
 
@@ -72,16 +73,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Todo: Move to Tetris initialize()
     // Create objects
     TetrominoManager* tetrominoManager = new TetrominoManager({ 500.f, 0.f });
-    MainBoard* mainStage = new MainBoard({ 0, 0 }, tetrominoManager->GetNextTetromino());
+    MainBoard* mainStage = new MainBoard(tetrominoManager->GetNextTetromino());
     //HoldManager* holdManager = new HoldManager({ 800.f, 0.f });
 
-    std::vector<GraphicsGrid*> objects;
-    objects.push_back(mainStage);
-    objects.push_back(tetrominoManager);
+    //objects.push_back(mainStage);
+    //objects.push_back(tetrominoManager);
     //objects.push_back(holdManager);
 
     GameStats* gameStats = new GameStats();
     GamePlayStage* gamePlayStage = new GamePlayStage(mainStage, tetrominoManager, gameStats);
+
+    std::vector<GameStage*> objects;
+    objects.push_back(gamePlayStage);
 
     while (true)
     {
@@ -105,8 +108,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         KeyManager::GetInstance()->Update();
 
         // Todo: Insert delta time
-        gamePlayStage->Update(5.f);
-        tetrominoManager->Update();
+        gamePlayStage->Update(5.0f);
 
         Engine::GetInstance()->Progress(objects);
     }

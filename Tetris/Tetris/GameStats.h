@@ -6,6 +6,9 @@ public:
     GameStats();
     virtual ~GameStats() = default;
 
+    unsigned int GetTotalScore() const;
+    unsigned int GetStageLevel() const;
+
     bool HasStageLevelUp() const;
     void ProcessLineClear(unsigned int lineClearCount);
 

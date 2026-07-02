@@ -1,11 +1,12 @@
 
-#include "GamePlayStage.h"
-#include "TimeManager.h"
-#include "KeyManager.h"
 #include <cassert>
 
+#include "GamePlayStage.h"
+#include <string>
+
 GamePlayStage::GamePlayStage(MainBoard* mainBoard, TetrominoManager* tetrominoManager, GameStats* gameStats)
-    : mMainBoard(mainBoard)
+    : GameStage({ 300.f, 0 }) // Todo: Magic number
+    , mMainBoard(mainBoard)
     , mTetrominoManager(tetrominoManager)
     , mGameStats(gameStats)
 {
@@ -18,6 +19,129 @@ void GamePlayStage::Update(double deltaTime)
     mGameStats->ProcessLineClear(clearLinesCount);
     if (mGameStats->HasStageLevelUp())
     {
+        //mMainBoard->mbUsedHold = true;
+
         // Todo: 속도 변경 등
+    }
+}
+
+void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
+{
+    // Todo: Move to static
+    const float GRID_HEIGHT = MainBoard::GRID_ROW_SIZE * BLOCK_LENGTH;
+    const float GRID_WIDTH = MainBoard::GRID_COL_SIZE * BLOCK_LENGTH;
+
+    const float BOX_LENGTH = 250.f;
+    const float DRAW_OFFSET = 30.f;
+    const float PRINT_STRING_OFFSET = 30.f;
+
+    // Draw main board
+    {
+        const bool* const* drawGrid = mMainBoard->GetGrid();
+
+        for (unsigned int row = 0; row < MainBoard::GRID_ROW_SIZE; ++row)
+        {
+            for (unsigned int col = 0; col < MainBoard::GRID_COL_SIZE; ++col)
+            {
+                if (drawGrid[row][col] == false)
+                {
+                    continue;
+                }
+
+                int renderStartY = mLeftTopPosition.Y + (row * BLOCK_LENGTH);
+                int renderStartX = mLeftTopPosition.X + (col * BLOCK_LENGTH);
+
+                Rectangle(memoryDeviceContext,
+                          renderStartX,
+                          renderStartY,
+                          renderStartX + BLOCK_LENGTH,
+                          renderStartY + BLOCK_LENGTH);
+            }
+
+            // Todo: Code duplicate, draw tetromino
+            drawTetromino(mLeftTopPosition, *mMainBoard->GetTetromino(), memoryDeviceContext);
+        }
+    }
+
+    // Draw hold
+    Vector2 holdBoxStartVector = { mLeftTopPosition.X - DRAW_OFFSET - BOX_LENGTH, 0.f };
+    {
+        assert(holdBoxStartVector.X >= 0);
+
+        Rectangle(memoryDeviceContext,
+            holdBoxStartVector.X,
+            holdBoxStartVector.Y,
+            holdBoxStartVector.X + BOX_LENGTH,
+            holdBoxStartVector.Y + BOX_LENGTH);
+
+        const Tetromino* holdTetrominoOrNull = mMainBoard->GetHoldTetrominoOrNull();
+        if (holdTetrominoOrNull != nullptr)
+        {
+            // Todo: duplicate
+            Vector2 holdTetrominoStartVector = { holdBoxStartVector.X + (BOX_LENGTH / 2) - BLOCK_LENGTH, (BOX_LENGTH / 2) - BLOCK_LENGTH };
+            drawTetromino(holdTetrominoStartVector, *holdTetrominoOrNull, memoryDeviceContext);
+        }
+    }
+
+    // Draw strings
+    Vector2 infoBoxStartVector = { mLeftTopPosition.X - DRAW_OFFSET - BOX_LENGTH, holdBoxStartVector.Y + BOX_LENGTH + DRAW_OFFSET };
+    {
+        Rectangle(memoryDeviceContext,
+            infoBoxStartVector.X,
+            infoBoxStartVector.Y,
+            infoBoxStartVector.X + BOX_LENGTH,
+            infoBoxStartVector.Y + BOX_LENGTH);
+
+        std::wstring printScore = L"Score: " + std::to_wstring(mGameStats->GetTotalScore());
+        std::wstring printLevel = L"Stage Level: " + std::to_wstring(mGameStats->GetStageLevel());
+
+        // Todo: No magic number, move position
+        TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + DRAW_OFFSET, printScore.c_str(), printScore.length());
+        TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + (DRAW_OFFSET * 2), printLevel.c_str(), printLevel.length());
+    }
+
+    // Draw next
+    Vector2 nextBoxStartVector = { mLeftTopPosition.X + GRID_WIDTH + DRAW_OFFSET, mLeftTopPosition.Y };
+    {
+        Rectangle(memoryDeviceContext,
+            nextBoxStartVector.X,
+            nextBoxStartVector.Y,
+            nextBoxStartVector.X + BOX_LENGTH - (BLOCK_LENGTH * 2),
+            nextBoxStartVector.Y + (GRID_HEIGHT - (BLOCK_LENGTH * 2)));
+
+        // Todo: Magic number
+        Vector2 nextTetrominoStartVector = { nextBoxStartVector.X + (BOX_LENGTH / 2) - (BLOCK_LENGTH * 3), (BLOCK_LENGTH * 2) };//nextBoxStartVector.Y + (BOX_LENGTH / 2) - BLOCK_LENGTH };
+        
+        const std::list<Tetromino*> nextTetrominoList = mTetrominoManager->GetNextTetrominoList();
+
+        unsigned int drawCount = 5;
+        for (const Tetromino* nextTetromino : nextTetrominoList)
+        {
+            if (drawCount == 0)
+            {
+                break;
+            }
+
+            drawTetromino(nextTetrominoStartVector, *nextTetromino, memoryDeviceContext);
+
+            nextTetrominoStartVector.Y += (DRAW_OFFSET * 4);
+
+            drawCount--;
+        }
+    }
+}
+
+void GamePlayStage::drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext)
+{
+    for (const Position& blockPosition : tetromino.GetBlockPositions())
+    {
+        int renderStartY = startVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH);
+        int renderStartX = startVector.X + (blockPosition.GetCol() * BLOCK_LENGTH);
+
+        Rectangle(memoryDeviceContext,
+                 renderStartX,
+                 renderStartY,
+                 renderStartX + BLOCK_LENGTH,
+                 renderStartY + BLOCK_LENGTH);
     }
 }

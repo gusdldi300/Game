@@ -1,12 +1,12 @@
 #pragma once
 
-#include "GraphicsGrid.h"
+#include "GameStage.h"
 
 class Tetromino;
 class TetrominoManager;
 class MainBoard;
 
-class HoldManager : public GraphicsGrid
+class HoldManager
 {
 public:
     HoldManager(Vector2 leftTopPosition);
@@ -19,10 +19,6 @@ public:
     Tetromino* UseHoldOrNull();
 
     bool UseHold(MainBoard* mainBoard, TetrominoManager* terominoManager);
-
-public:
-    static const unsigned int GRID_ROW_SIZE;
-    static const unsigned int GRID_COL_SIZE;
 
 private:
     bool mbUsedHoldStage;
