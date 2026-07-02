@@ -30,6 +30,11 @@ unsigned int GameStats::GetStageLevel() const
     return mStageLevel;
 }
 
+double GameStats::GetTickRate() const
+{
+    return mTickRate;
+}
+
 bool GameStats::Ticked(TickTimer* tickTimer) const
 {
     if (tickTimer->GetAccumulatedTime() >= mTickRate)

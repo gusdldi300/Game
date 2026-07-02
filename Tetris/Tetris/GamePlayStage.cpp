@@ -6,6 +6,8 @@
 #include "KeyManager.h"
 #include "TickTimer.h"
 
+const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
+
 GamePlayStage::GamePlayStage()
     : GameStage({ 300.f, 0 }) // Todo: Magic number
     , mTetrominoManager(new TetrominoManager({ 500.f, 0.f }))
@@ -28,12 +30,9 @@ void GamePlayStage::Update(double deltaTime)
 {
     bool bTetrominoAlive = true;
 
+    double tickRate = mGameStats->GetTickRate();
     mTickTimer->AccumulatedTime(deltaTime);
-    if (mGameStats->Ticked(mTickTimer))
-    {
-        bTetrominoAlive = mMainBoard->MoveTetrominoOneStep(eDirection::Down);
-    }
-    
+
     // Move tetromino on board
     {
         // Todo: Maybe change to switch case
@@ -45,6 +44,10 @@ void GamePlayStage::Update(double deltaTime)
         else if (keyManager->GetKeyState(eKey::Right) == eKeyState::Press)
         {
             mMainBoard->MoveTetrominoOneStep(eDirection::Right);
+        }
+        else if (keyManager->GetKeyState(eKey::Down) == eKeyState::Hold)
+        {
+            tickRate /= SOFT_DROP_SPEED_DIVISOR;
         }
         else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
         {
@@ -68,7 +71,14 @@ void GamePlayStage::Update(double deltaTime)
             mMainBoard->UseHold(mTetrominoManager);
         }
     }
-    
+
+    if (mTickTimer->GetAccumulatedTime() >= tickRate)
+    {
+        bTetrominoAlive = mMainBoard->MoveTetrominoOneStep(eDirection::Down);
+
+        mTickTimer->ResetTimer();
+    }
+
     if (bTetrominoAlive)
     {
         return;

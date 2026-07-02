@@ -19,6 +19,8 @@ private:
     void drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext);
 
 private:
+    static const double SOFT_DROP_SPEED_DIVISOR;
+    
     MainBoard* mMainBoard;
     TetrominoManager* mTetrominoManager;
     GameStats* mGameStats;
