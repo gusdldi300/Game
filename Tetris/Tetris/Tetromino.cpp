@@ -1,12 +1,11 @@
 
-#include "MainStage.h"
+#include "MainBoard.h"
 #include "Tetromino.h"
 
 const unsigned int Tetromino::TYPES_COUNT = 7U;
 const unsigned int Tetromino::ROTATATION_STATES_COUNT = 4U;
 
-
-
+// Todo: Check s tetromino, akward rotation
 // Todo: magic number
 const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
 {

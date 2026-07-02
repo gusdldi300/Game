@@ -3,6 +3,8 @@
 #include "GraphicsGrid.h"
 
 class Tetromino;
+class TetrominoManager;
+class MainBoard;
 
 class HoldManager : public GraphicsGrid
 {
@@ -15,6 +17,8 @@ public:
 
     bool SetHold(Tetromino* holdTetromino);
     Tetromino* UseHoldOrNull();
+
+    bool UseHold(MainBoard* mainBoard, TetrominoManager* terominoManager);
 
 public:
     static const unsigned int GRID_ROW_SIZE;

@@ -8,7 +8,7 @@ class GraphicsGrid
 {
 public:
     GraphicsGrid(Vector2 leftTopPosition, int rowSize, int colSize);
-    virtual ~GraphicsGrid() = default;
+    virtual ~GraphicsGrid();
 
     //virtual void Update() = 0;
     virtual void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution);

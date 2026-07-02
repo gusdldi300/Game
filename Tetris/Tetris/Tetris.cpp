@@ -10,11 +10,13 @@
 
 #include "GraphicsGrid.h"
 #include "Block.h"
-#include "MainStage.h"
+#include "MainBoard.h"
 #include "TetrominoManager.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
 #include "HoldManager.h"
+#include "GamePlayStage.h"
+#include "Gamestats.h"
 
 #define MAX_LOADSTRING 100
 
@@ -61,6 +63,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     POINT windowSize = { 1280, 768 };
     Engine::CreateInstance(shWindow, windowSize);
+    TimeManager::CreateInstance();
+    KeyManager::CreateInstance();
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TETRIS));
     MSG msg;
@@ -68,13 +72,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Todo: Move to Tetris initialize()
     // Create objects
     TetrominoManager* tetrominoManager = new TetrominoManager({ 500.f, 0.f });
-    MainStage* mainStage = new MainStage({ 0, 0 }, tetrominoManager->GetNextTetromino());
-    HoldManager* holdManager = new HoldManager({ 800.f, 0.f });
+    MainBoard* mainStage = new MainBoard({ 0, 0 }, tetrominoManager->GetNextTetromino());
+    //HoldManager* holdManager = new HoldManager({ 800.f, 0.f });
 
     std::vector<GraphicsGrid*> objects;
     objects.push_back(mainStage);
     objects.push_back(tetrominoManager);
-    objects.push_back(holdManager);
+    //objects.push_back(holdManager);
+
+    GameStats* gameStats = new GameStats();
+    GamePlayStage* gamePlayStage = new GamePlayStage(mainStage, tetrominoManager, gameStats);
 
     while (true)
     {
@@ -97,8 +104,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         TimeManager::GetInstance()->Update();
         KeyManager::GetInstance()->Update();
 
-        mainStage->UpdateTetromino(tetrominoManager, holdManager);
-        mainStage->Update(tetrominoManager);
+        // Todo: Insert delta time
+        gamePlayStage->Update(5.f);
         tetrominoManager->Update();
 
         Engine::GetInstance()->Progress(objects);

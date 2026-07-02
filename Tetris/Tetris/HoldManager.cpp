@@ -3,6 +3,8 @@
 #include "HoldManager.h"
 #include "Position.h"
 #include "Tetromino.h"
+#include "TetrominoManager.h"
+#include "MainBoard.h"
 
 const unsigned int HoldManager::GRID_ROW_SIZE = 4U + WALL_ROW_SIZE;
 const unsigned int HoldManager::GRID_COL_SIZE = 6U + WALL_COL_SIZE;
@@ -85,3 +87,29 @@ Tetromino* HoldManager::UseHoldOrNull()
 
     return pOutHold;
 }
+
+/*
+bool HoldManager::UseHold(MainBoard* mainBoard, TetrominoManager* terominoManager)
+{
+    // Todo: Compare with MainBoard.UseHold()
+    if (mbUsedHoldStage == false)
+    {
+        //assert(mTetromino != nullptr);
+
+        if (mHoldTetrominoOrNull == nullptr)
+        {
+            // Todo: Maybe tetrominoManager not needed
+            mHoldTetrominoOrNull = mainBoard->GetTeromino();
+            mainBoard->setTetroimino(terominoManager->GetNextTetromino());
+
+            mainBoard->GetTeromino()->SpawnTetromino();
+        }
+        else
+        {
+            mainBoard->setTetroimino(mHoldTetrominoOrNull);
+        }
+    }
+
+    return false;
+}
+*/

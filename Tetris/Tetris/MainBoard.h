@@ -11,29 +11,31 @@ class Position;
 class TetrominoManager;
 class HoldManager;
 
-class MainStage : public GraphicsGrid
+class MainBoard : public GraphicsGrid
 {
 public:
-    MainStage(Vector2 leftTopVector, Tetromino* tetromino);
-    virtual ~MainStage();
+    MainBoard(Vector2 leftTopVector, Tetromino* tetromino);
+    virtual ~MainBoard() = default;
 
-    void UpdateTetromino(TetrominoManager* tetrominoManager, HoldManager* holdManager);
-
+    // Todo: Move to private
     bool MoveTetrominoOneStep(eDirection direction);
     bool RotateTetrominoCW();
 
-    //void Update(TetrominoManager* tetrominoManager);
-    void Update(TetrominoManager* tetrominoManager);
+    unsigned int ClearLines(TetrominoManager* tetrominoManager);
+
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
     
     const bool* const* GetGrid() const;
+    
+    // Todo: Check later
+    const Tetromino* GetTetromino() const;
+    const void SetTetromino(Tetromino* tetromino);
 
 private:
-    void spawnTetromino();
     bool canPlaceOnGrid(Position position) const;
+    void spawnTetromino();
 
 public:
-    // Todo: 수정 필요, 동적할당하기
     // Todo: 쓸모없는 정적 변수 너무 많음
     static const unsigned int SPAWN_ZONE_ROW_SIZE = 2U;
 
@@ -48,26 +50,16 @@ public:
 
 private:
     static const Vector2 GRID_START_POINT;
-    //static const float BLOCK_LENGTH;
-    //static const float GRID_WIDTH;
-    //static const float GRID_HEIGHT;
-
-    static const unsigned int STAGES_COUNT;
-    static const unsigned int STAGE_LEVEL_REACH_SCORES[];
-    static const unsigned int MAX_STAGE_LEVEL;
-
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
-    //bool** mbGrid;
-    //bool mbGrid[GRID_ROW_SIZE][GRID_COL_SIZE];
-    
     Tetromino* mTetromino;
+    
     Tetromino* mHoldTetrominoOrNull;
-    bool mbUsedHold;
+    bool mbHoldUsed;
 
-    // Todo: Move to Info class
-    unsigned int mTotalScore;
-    unsigned int mStageLevel;
+    // Todo: To class GameInfo
+    //unsigned int mTotalScore;
+    //unsigned int mStageLevel;
 };
 
 

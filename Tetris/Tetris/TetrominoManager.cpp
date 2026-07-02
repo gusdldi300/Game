@@ -1,9 +1,9 @@
 
+#include <cassert>
 #include <random>
 
 #include "Tetromino.h"
 #include "TetrominoManager.h"
-#include <cassert>
 
 class Vector2;
 
@@ -79,18 +79,6 @@ void TetrominoManager::Update()
         showCount++;
     }
 }
-
-/*
-void TetrominoManager::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
-{
-    GraphicsGrid::Render(windowDeviceContext, memoryDeviceContext, windowResolution);
-
-    // Todo: Render next list
-    const unsigned int TETROMINO_ROW_SIZE = 3U;
-    
-    
-}
-*/
 
 void TetrominoManager::Release(Tetromino* tetromino)
 {

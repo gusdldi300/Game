@@ -33,6 +33,15 @@ GraphicsGrid::GraphicsGrid(Vector2 leftTopPosition, int rowSize, int colSize)
     }
 }
 
+GraphicsGrid::~GraphicsGrid()
+{
+    for (int row = 0; row < mGridRowSize; ++row)
+    {
+        delete[] mbGrid[row];
+    }
+    delete[] mbGrid;
+}
+
 //void GraphicsObject::Update()
 //{
     //float frameDeltaTime = static_cast<float>(TimeManager::GetInstance()->GetFrameDeltaTime());

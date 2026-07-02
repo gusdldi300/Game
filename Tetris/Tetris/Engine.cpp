@@ -95,10 +95,10 @@ Engine::Engine(HWND hWindow, POINT resolution)
         DeleteObject(hOldBitMap);
     }
 
-    // Todo: Initialize()로 옮기는게 좋을지도
+    // Todo: 외부 Initialize()로 옮기는게 좋을지도
     {
-        TimeManager::CreateInstance();
-        KeyManager::CreateInstance();
+        //TimeManager::CreateInstance();
+        //KeyManager::CreateInstance();
 
         //GraphicsObject* object = new Block();
         //mGraphicsObjects.push_back(object);

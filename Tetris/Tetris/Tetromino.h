@@ -25,7 +25,7 @@ enum class eRotationState
     End
 };
 
-class MainStage;
+class MainBoard;
 
 class Tetromino
 {
