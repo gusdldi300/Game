@@ -1,7 +1,6 @@
 #pragma once
 
 #include <wtypes.h>
-#include <vector>
 
 #include "GameStage.h"
 #include "GamePlayStage.h"
@@ -37,9 +36,7 @@ private:
     HBITMAP mhBitMap;
     HDC mhMemoryDeviceContext;
 
-    //StartStage* mStartStage;
-    GamePlayStage* mGameplayStage;
-
+    std::vector<GameStage*> mGameStages;
     GameStage* mCurrentStage;
 
     bool mbGameOn;

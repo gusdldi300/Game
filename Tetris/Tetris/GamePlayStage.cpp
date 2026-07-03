@@ -9,7 +9,7 @@
 const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 
 GamePlayStage::GamePlayStage()
-    : GameStage({ 300.f, 0 }) // Todo: Magic number
+    : GameStage() 
     , mTetrominoManager(new TetrominoManager({ 500.f, 0.f }))
     //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
     , mGameStats(new GameStats())
@@ -26,7 +26,7 @@ GamePlayStage::~GamePlayStage()
     delete mTickTimer;
 }
 
-void GamePlayStage::Update(double deltaTime)
+eStageType GamePlayStage::Update(double deltaTime)
 {
     bool bTetrominoAlive = true;
 
@@ -81,10 +81,18 @@ void GamePlayStage::Update(double deltaTime)
 
     if (bTetrominoAlive)
     {
-        return;
+        return eStageType::Play;
     }
 
     mMainBoard->LockDownTetromino(mTetrominoManager);
+    if (mMainBoard->IsGameOver())
+    {
+        return eStageType::Start;
+    }
+
+    // Todo: 헷갈림
+    mMainBoard->ReleaseActiveTetromino(mTetrominoManager);
+    mMainBoard->SetNextTetrominoFrom(mTetrominoManager);
 
     unsigned int clearLinesCount = mMainBoard->ClearFullLines();
     if (clearLinesCount > 0)
@@ -92,14 +100,7 @@ void GamePlayStage::Update(double deltaTime)
         mGameStats->UpdateInformationsFrom(clearLinesCount);
     }
 
-    /*
-    if (mGameStats->HasStageLevelUp())
-    {
-        //mMainBoard->mbUsedHold = true;
-
-        // Todo: 속도 변경 등
-    }
-    */
+    return eStageType::Play;
 }
 
 void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
@@ -112,36 +113,8 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
     const float DRAW_OFFSET = 30.f;
     const float PRINT_STRING_OFFSET = 30.f;
 
-    // Draw main board
-    {
-        const bool* const* drawGrid = mMainBoard->GetGrid();
-
-        for (unsigned int row = 0; row < MainBoard::GRID_ROW_SIZE; ++row)
-        {
-            for (unsigned int col = 0; col < MainBoard::GRID_COL_SIZE; ++col)
-            {
-                if (drawGrid[row][col] == false)
-                {
-                    continue;
-                }
-
-                int renderStartY = mLeftTopPosition.Y + (row * BLOCK_LENGTH);
-                int renderStartX = mLeftTopPosition.X + (col * BLOCK_LENGTH);
-
-                Rectangle(memoryDeviceContext,
-                          renderStartX,
-                          renderStartY,
-                          renderStartX + BLOCK_LENGTH,
-                          renderStartY + BLOCK_LENGTH);
-            }
-
-            // Todo: Code duplicate, draw tetromino
-            drawTetromino(mLeftTopPosition, *mMainBoard->GetActiveTetromino(), memoryDeviceContext);
-        }
-    }
-
     // Draw hold
-    Vector2 holdBoxStartVector = { mLeftTopPosition.X - DRAW_OFFSET - BOX_LENGTH, 0.f };
+    Vector2 holdBoxStartVector = { DRAW_OFFSET, DRAW_OFFSET };
     {
         assert(holdBoxStartVector.X >= 0);
 
@@ -161,7 +134,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
     }
 
     // Draw strings
-    Vector2 infoBoxStartVector = { mLeftTopPosition.X - DRAW_OFFSET - BOX_LENGTH, holdBoxStartVector.Y + BOX_LENGTH + DRAW_OFFSET };
+    Vector2 infoBoxStartVector = { holdBoxStartVector.X, holdBoxStartVector.Y + BOX_LENGTH + DRAW_OFFSET };
     {
         Rectangle(memoryDeviceContext,
             infoBoxStartVector.X,
@@ -177,8 +150,37 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
         TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + (DRAW_OFFSET * 2), printLevel.c_str(), printLevel.length());
     }
 
-    // Draw next
-    Vector2 nextBoxStartVector = { mLeftTopPosition.X + GRID_WIDTH + DRAW_OFFSET, mLeftTopPosition.Y };
+    // Draw main board
+    Vector2 mainBoardStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
+    {
+        const bool* const* drawGrid = mMainBoard->GetGrid();
+
+        for (unsigned int row = 0; row < MainBoard::GRID_ROW_SIZE; ++row)
+        {
+            for (unsigned int col = 0; col < MainBoard::GRID_COL_SIZE; ++col)
+            {
+                if (drawGrid[row][col] == false)
+                {
+                    continue;
+                }
+
+                int renderStartX = mainBoardStartVector.X + (col * BLOCK_LENGTH);
+                int renderStartY = mainBoardStartVector.Y + (row * BLOCK_LENGTH);
+
+                Rectangle(memoryDeviceContext,
+                          renderStartX,
+                          renderStartY,
+                          renderStartX + BLOCK_LENGTH,
+                          renderStartY + BLOCK_LENGTH);
+            }
+
+            // Todo: Code duplicate, draw tetromino
+            drawTetromino(mainBoardStartVector, *mMainBoard->GetActiveTetromino(), memoryDeviceContext);
+        }
+    }
+
+    // Draw next tetrominos
+    Vector2 nextBoxStartVector = { mainBoardStartVector.X + (BLOCK_LENGTH * MainBoard::GRID_COL_SIZE) + DRAW_OFFSET, mainBoardStartVector.Y };
     {
         Rectangle(memoryDeviceContext,
             nextBoxStartVector.X,

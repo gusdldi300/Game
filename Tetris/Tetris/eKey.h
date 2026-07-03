@@ -12,6 +12,7 @@ enum class eKey
     A,
     D,
 
+    Return,
     Space,
     Esc,
 

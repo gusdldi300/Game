@@ -18,6 +18,7 @@ const int KeyManager::KEYS[static_cast<int>(eKey::Last)] =
     'A',
     'D',
 
+    VK_RETURN,
     VK_SPACE,
     VK_ESCAPE
 };

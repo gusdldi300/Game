@@ -8,7 +8,6 @@
 #include "Engine.h"
 #include "framework.h"
 
-#include "Block.h"
 #include "MainBoard.h"
 #include "TetrominoManager.h"
 #include "TimeManager.h"
@@ -67,11 +66,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Engine::CreateInstance(shWindow, windowSize);
     KeyManager::CreateInstance();
 
-    //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TETRIS));
-
     Engine::GetInstance()->Run();
 
-    //return (int) msg.wParam;
     return 0;
 }
 
@@ -167,10 +163,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
         // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-        /*
-        Rectangle(hdc, 0, 0, 100, 100);
-        Rectangle(hdc, 100, 100, 200, 200);
-        */
 
         EndPaint(hWnd, &ps);
 

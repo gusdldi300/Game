@@ -1,15 +1,11 @@
 
 #include <cassert>
 
-#include "Block.h"
-
 #include "Engine.h"
 #include "GameStage.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
-
-
-// Todo: temp object
+#include "StartStage.h"
 
 Engine* Engine::mEngine = nullptr;
 
@@ -78,9 +74,6 @@ Engine::Engine(HWND hWindow, POINT resolution)
     : mhWindow(hWindow)
     , mWindowResolution(resolution)
     , mbGameOn(true)
-    , mGameplayStage(new GamePlayStage())
-    , mCurrentStage(mGameplayStage)
-    //mStartStage = new StartStage();
 {
     // Create window
     {
@@ -110,14 +103,24 @@ Engine::Engine(HWND hWindow, POINT resolution)
         QueryPerformanceCounter(&mPrevTime);
     }
 
+    // Initialize stages
+    {
+        mGameStages.push_back(new StartStage());
+        mGameStages.push_back(new GamePlayStage());
+        //mGameStages.push_back(new EndStage());
+
+        mCurrentStage = mGameStages[static_cast<unsigned int>(eStageType::Start)];
+    }
 }
 
 Engine::~Engine()
 {
     ReleaseDC(mhWindow, mhWindowDeviceContext);
 
-    delete mGameplayStage;
-    // delete mStatStage;
+    for (unsigned int i = 0; i < mGameStages.size(); ++i)
+    {
+        delete mGameStages[i];
+    }
     
     mCurrentStage = nullptr;
 }
@@ -130,11 +133,11 @@ void Engine::update()
     double deltaTime = static_cast<double>(currentTime.QuadPart - mPrevTime.QuadPart) / mTimerFrequency.QuadPart;
     mPrevTime = currentTime;
 
-    // Todo: 스테이지 전환 키 입력 검사 
-    // HandleGlobalInput(); 
-
     assert(mCurrentStage != nullptr);
-    mCurrentStage->Update(deltaTime);
+    eStageType stageType = mCurrentStage->Update(deltaTime);
+
+    unsigned int currentStageIndex = static_cast<unsigned int>(stageType);
+    mCurrentStage = mGameStages[currentStageIndex];
 }
 
 void Engine::render()

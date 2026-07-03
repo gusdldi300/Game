@@ -12,7 +12,7 @@ public:
     GamePlayStage();
     virtual ~GamePlayStage();
 
-    void Update(double deltaTime) override;
+    eStageType Update(double deltaTime) override;
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
 
 private:

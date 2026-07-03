@@ -26,31 +26,39 @@ public:
 
     unsigned int ClearFullLines();
     void LockDownTetromino(TetrominoManager* tetrominoManager);
+    bool IsGameOver() const;
 
     const bool* const* GetGrid() const;
-    
+
     // Todo: Check later
     const Tetromino* GetActiveTetromino() const;
     const Tetromino* GetHoldTetrominoOrNull() const;
 
-private:
-    void releaseActiveTetromino(TetrominoManager* tetrominoManager);
-    void setNextTetrominoFrom(TetrominoManager* tetrominoManager);
+    // Todo: 사용하기 헷갈림
+    void ReleaseActiveTetromino(TetrominoManager* tetrominoManager);
+    void SetNextTetrominoFrom(TetrominoManager* tetrominoManager);
 
+private:
     bool canPlaceOnGrid(Position position) const;
     void respawnActiveTetromino();
 
 public:
     // Todo: 쓸모없는 정적 변수 너무 많음
+    // cpp 에 초기화하기
     static const unsigned int WALL_COL_SIZE = 2U;
     static const unsigned int WALL_ROW_SIZE = 2U;
 
     static const unsigned int SPAWN_ZONE_ROW_SIZE = 2U;
-
+    
     static const unsigned int GRID_ROW_SIZE = 20U + SPAWN_ZONE_ROW_SIZE + WALL_ROW_SIZE;
     static const unsigned int GRID_COL_SIZE = 10U + WALL_COL_SIZE;
 
 private:
+    static const unsigned int BOARD_START_ROW = 1U;
+    static const unsigned int BOARD_START_COL = 1U;
+    static const unsigned int BOARD_END_COL = GRID_COL_SIZE - 2;
+    static const unsigned int BOARD_END_ROW = GRID_ROW_SIZE - 2;
+    
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT = 5U;
     static const unsigned int MAX_MOVE_POSITIONS_COUNT = 4U;
 

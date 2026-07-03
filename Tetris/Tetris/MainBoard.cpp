@@ -66,11 +66,11 @@ unsigned int MainBoard::ClearFullLines()
     unsigned int lineClearCount = 0;
 
     // Todo: Magic number
-    for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row < GRID_ROW_SIZE - 1; ++row)
+    for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row <= BOARD_END_ROW; ++row)
     {
         bool bLineFull = true;
 
-        for (unsigned int col = 1; col < GRID_COL_SIZE - 1; ++col)
+        for (unsigned int col = BOARD_START_COL; col <= BOARD_END_COL; ++col)
         {
             if (mbGrid[row][col] == false)
             {
@@ -89,7 +89,7 @@ unsigned int MainBoard::ClearFullLines()
 
         for (unsigned int copyRow = row; copyRow >= SPAWN_ZONE_ROW_SIZE; --copyRow)
         {
-            for (unsigned int copyCol = 1; copyCol < GRID_COL_SIZE - 1; ++copyCol)
+            for (unsigned int copyCol = BOARD_START_COL; copyCol < BOARD_END_COL; ++copyCol)
             {
                 mbGrid[copyRow][copyCol] = mbGrid[copyRow - 1][copyCol];
             }
@@ -99,10 +99,20 @@ unsigned int MainBoard::ClearFullLines()
     return lineClearCount;
 }
 
-// Todo: private 
-void MainBoard::releaseActiveTetromino(TetrominoManager* tetrominoManager)
+void MainBoard::ReleaseActiveTetromino(TetrominoManager* tetrominoManager)
 {
     tetrominoManager->Release(mActiveTetromino);
+
+    // Todo: nullptr 을 만들면 안됨
+    mActiveTetromino = nullptr;
+}
+
+void MainBoard::SetNextTetrominoFrom(TetrominoManager* tetrominoManager)
+{
+    assert(tetrominoManager != nullptr);
+
+    mActiveTetromino = tetrominoManager->GetNextTetromino();
+    respawnActiveTetromino();
 }
 
 const Tetromino* MainBoard::GetActiveTetromino() const
@@ -115,14 +125,6 @@ const Tetromino* MainBoard::GetHoldTetrominoOrNull() const
     return mHoldTetrominoOrNull;
 }
 
-// Todo: private 
-void MainBoard::setNextTetrominoFrom(TetrominoManager* tetrominoManager)
-{
-    assert(tetrominoManager != nullptr);
-
-    mActiveTetromino = tetrominoManager->GetNextTetromino();
-    respawnActiveTetromino();
-}
 
 void MainBoard::LockDownTetromino(TetrominoManager* tetrominoManager)
 {
@@ -130,9 +132,22 @@ void MainBoard::LockDownTetromino(TetrominoManager* tetrominoManager)
     {
         mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
     }
+}
 
-    releaseActiveTetromino(tetrominoManager);
-    setNextTetrominoFrom(tetrominoManager);
+bool MainBoard::IsGameOver() const
+{
+    for (unsigned int row = BOARD_START_ROW; row <= SPAWN_ZONE_ROW_SIZE; ++row)
+    {
+        for (unsigned int col = BOARD_START_COL; col <= BOARD_END_COL; ++col)
+        {
+            if (mbGrid[row][col])
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool MainBoard::MoveTetrominoOneStep(eDirection direction)
@@ -188,7 +203,7 @@ bool MainBoard::AddHold(TetrominoManager* tetrominoManager)
     mHoldTetrominoOrNull = mActiveTetromino;
     mHoldTetrominoOrNull->ResetStates();
 
-    setNextTetrominoFrom(tetrominoManager);
+    SetNextTetrominoFrom(tetrominoManager);
 
     return true;
 }
@@ -201,7 +216,7 @@ bool MainBoard::UseHold(TetrominoManager* tetrominoManager)
     }
 
     mActiveTetromino = mHoldTetrominoOrNull;
-    releaseActiveTetromino(tetrominoManager);
+    ReleaseActiveTetromino(tetrominoManager);
     
     assert(mActiveTetromino != nullptr);
     respawnActiveTetromino();
@@ -218,8 +233,8 @@ bool MainBoard::canPlaceOnGrid(Position position) const
     int positionRow = position.GetRow();
     int positionCol = position.GetCol();
 
-    if (positionRow < MainBoard::SPAWN_TETROMINO_ROW || positionRow >= MainBoard::GRID_ROW_SIZE - 1 ||
-        positionCol <= 0 || positionCol >= MainBoard::GRID_COL_SIZE - 1)
+    if ((positionRow < SPAWN_TETROMINO_ROW || positionRow > BOARD_END_ROW) ||
+        (positionCol < BOARD_START_COL || positionCol > BOARD_END_COL))
     {
         return false;
     }
