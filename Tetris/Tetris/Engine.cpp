@@ -155,7 +155,7 @@ void Engine::render()
 {
     Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
 
-    mCurrentStage->Render(mhWindowDeviceContext, mhMemoryDeviceContext, mWindowResolution);
+    mCurrentStage->Render(mhMemoryDeviceContext);
 
     BitBlt(mhWindowDeviceContext, 0, 0, mWindowResolution.x, mWindowResolution.y,
         mhMemoryDeviceContext, 0, 0, SRCCOPY);

@@ -198,10 +198,9 @@ bool MainBoard::UseHold(TetrominoManager* tetrominoManager)
         return false;
     }
 
-    mActiveTetromino = mHoldTetrominoOrNull;
     ReleaseActiveTetromino(tetrominoManager);
-    
-    assert(mActiveTetromino != nullptr);
+
+    mActiveTetromino = mHoldTetrominoOrNull;
     respawnActiveTetromino();
 
     mHoldTetrominoOrNull = nullptr;

@@ -9,7 +9,7 @@ class Tetromino;
 class TetrominoManager
 {
 public:
-    TetrominoManager(Vector2 leftTopPosition);
+    TetrominoManager();
     virtual ~TetrominoManager();
 
     void Update();
@@ -20,7 +20,6 @@ public:
 
 private:
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT;
-    static const unsigned int MAX_NEXT_TETROMINOS_SHOW_COUNT;
 
     std::list<Tetromino*> mNextTetrominoList;
 };

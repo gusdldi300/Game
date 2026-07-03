@@ -14,7 +14,7 @@ public:
 
     GameResult GetGameResult() const;
     eStageType Update(double deltaTime) override;
-    void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
+    void Render(HDC memoryDeviceContext) override;
 
 private:
     void drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext);

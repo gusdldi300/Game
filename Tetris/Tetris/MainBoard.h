@@ -43,26 +43,19 @@ private:
     void respawnActiveTetromino();
 
 public:
-    // Todo: 쓸모없는 정적 변수 너무 많음
-    // cpp 에 초기화하기
-    // Todo: 벽은 그리드에 표기 안하는게 좋을 듯
-
+    // Todo: 쓸모없는 정적 변수 너무 많음, cpp 에 초기화하기
     static const unsigned int SPAWN_ZONE_ROW_SIZE = 2U;
 
     static const unsigned int BOARD_ROW_SIZE = 20U + SPAWN_ZONE_ROW_SIZE;
     static const unsigned int BOARD_COL_SIZE = 10U;
 
 private:
-    static const unsigned int MAX_NEXT_TETROMINOS_COUNT = 5U;
-    static const unsigned int MAX_MOVE_POSITIONS_COUNT = 4U;
-
-    static const unsigned int SPAWN_TETROMINO_ROW = 1U;
+    static const unsigned int SPAWN_TETROMINO_ROW = 0U;
     static const unsigned int SPAWN_TETROMINO_COL = 3U;
 
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
     Tetromino* mActiveTetromino;
-    
     Tetromino* mHoldTetrominoOrNull;
     bool mbHoldUsed;
 

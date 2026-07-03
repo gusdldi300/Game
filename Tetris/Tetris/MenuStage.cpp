@@ -4,7 +4,6 @@
 #include <cassert>
 
 // Todo: Use constexpr
-const float MenuStage::STRING_DRAW_OFFSET = 50.f;
 
 MenuStage::MenuStage(Vector2 drawStartVector, std::wstring titleString, std::vector<std::wstring> menuStrings, std::vector<std::wstring> selectedMenuStrings)
     : GameStage(drawStartVector)
@@ -15,7 +14,7 @@ MenuStage::MenuStage(Vector2 drawStartVector, std::wstring titleString, std::vec
 {
 }
 
-void MenuStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
+void MenuStage::Render(HDC memoryDeviceContext)
 {
     // Todo: 텍스트 크기 늘리기
     TextOut(memoryDeviceContext, mDrawStartVector.X, mDrawStartVector.Y, mTitleString.c_str(), mTitleString.length());
@@ -44,3 +43,4 @@ void MenuStage::selectMenu()
         mSelectedMenu = (mSelectedMenu + 1) % mMenuStrings.size();
     }
 }
+

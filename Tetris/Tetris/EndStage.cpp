@@ -1,9 +1,11 @@
-#include "EndStage.h"
-#include "KeyManager.h"
 #include <cassert>
 
+#include "EndStage.h"
+#include "KeyManager.h"
+
 // Todo: Use constexpr
-// Todo: Code duplicated
+const Vector2 EndStage::LEFT_TOP_DRAW_VECTOR = { 450.f, 250.f };
+
 const std::wstring EndStage::TITLE_STRING = L"----- GAME OVER -----";
 
 const std::vector<std::wstring> EndStage::MENU_STRINGS =
@@ -19,7 +21,7 @@ const std::vector<std::wstring> EndStage::SELECTED_MENU_STRINGS =
 };
 
 EndStage::EndStage()
-    : MenuStage({ 550.f, 250.f }, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
+    : MenuStage({ 450.f, 200.f }, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
     , mResult({ 0, })
 {
 }
@@ -53,14 +55,23 @@ eStageType EndStage::Update(double deltaTime)
     return eStageType::End;
 }
 
-void EndStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
+void EndStage::Render(HDC memoryDeviceContext)
 {
-    MenuStage::Render(windowDeviceContext, memoryDeviceContext, windowResolution);
+    MenuStage::Render(memoryDeviceContext);
 
-    // Todo: Draw result
-    {
+    Vector2 drawScoreLeftTopVector = LEFT_TOP_DRAW_VECTOR;
+    drawScoreLeftTopVector.Y += (MENU_STRINGS.size() * STRING_DRAW_OFFSET) + STRING_DRAW_OFFSET;
 
-    }
+    std::vector<std::wstring> drawStats;
+    std::wstring scoreString = L"Final Score: " + std::to_wstring(mResult.Score);
+    std::wstring levelString = L"Stage Level: " + std::to_wstring(mResult.Level);
+    std::wstring linesClearedString = L"Lines Cleared: " + std::to_wstring(mResult.LineCleared);
+
+    drawStats.push_back(scoreString);
+    drawStats.push_back(levelString);
+    drawStats.push_back(linesClearedString);
+
+    drawScores(memoryDeviceContext, drawScoreLeftTopVector, drawStats);
 }
 
 

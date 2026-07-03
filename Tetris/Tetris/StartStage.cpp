@@ -25,7 +25,6 @@ const std::vector<std::wstring> StartStage::SELECTED_MENU_STRINGS =
 
 StartStage::StartStage()
     : MenuStage({ 550.f, 250.f }, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
-    , mSelectedMenu(0)
 {
 }
 

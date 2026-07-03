@@ -11,7 +11,7 @@ const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 
 GamePlayStage::GamePlayStage()
     : GameStage({ 0.f, 0.f })
-    , mTetrominoManager(new TetrominoManager({ 500.f, 0.f }))
+    , mTetrominoManager(new TetrominoManager())
     //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
     , mGameStats(new GameStats())
     , mTickTimer(new TickTimer())
@@ -109,7 +109,7 @@ eStageType GamePlayStage::Update(double deltaTime)
     return eStageType::Play;
 }
 
-void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
+void GamePlayStage::Render(HDC memoryDeviceContext)
 {
     // Todo: Move to class static
     static const unsigned int WALL_SIZE = 2U;
@@ -120,7 +120,6 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
     static const float GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
     static const float GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
 
-    static const float BOX_LENGTH = 250.f;
     static const float DRAW_OFFSET = 30.f;
     static const float PRINT_STRING_OFFSET = 30.f;
 
@@ -144,23 +143,20 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
         }
     }
 
-    // Draw strings
+    // Draw stats
     Vector2 infoBoxStartVector = { holdBoxStartVector.X, holdBoxStartVector.Y + BOX_LENGTH + DRAW_OFFSET };
-    {
-        Rectangle(memoryDeviceContext,
-            infoBoxStartVector.X,
-            infoBoxStartVector.Y,
-            infoBoxStartVector.X + BOX_LENGTH,
-            infoBoxStartVector.Y + BOX_LENGTH);
 
-        std::wstring printScore = L"Score: " + std::to_wstring(mGameStats->GetTotalScore());
-        std::wstring printLevel = L"Stage Level: " + std::to_wstring(mGameStats->GetStageLevel());
+    // Todo: Make as function
+    std::vector<std::wstring> drawStats;
+    std::wstring scoreString = L"Score: " + std::to_wstring(mGameStats->GetTotalScore());
+    std::wstring levelString = L"Stage Level: " + std::to_wstring(mGameStats->GetStageLevel());
 
-        // Todo: No magic number, move position
-        TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + DRAW_OFFSET, printScore.c_str(), printScore.length());
-        TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + (DRAW_OFFSET * 2), printLevel.c_str(), printLevel.length());
-    }
+    drawStats.push_back(scoreString);
+    drawStats.push_back(levelString);
 
+    drawScores(memoryDeviceContext, infoBoxStartVector, drawStats);
+
+    // Draw walls
     Vector2 wallStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
     {
         int leftWallStartX = wallStartVector.X;
@@ -202,6 +198,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
         }
     }
 
+    // Draw main board
     Vector2 mainBoardStartVector = { wallStartVector.X + BLOCK_LENGTH, wallStartVector.Y + BLOCK_LENGTH };
     {
         const bool* const* drawGrid = mMainBoard->GetGrid();

@@ -12,14 +12,12 @@ public:
     virtual ~StartStage() = default;
 
     eStageType Update(double deltaTime) override;
-    //void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
+    //void Render(HDC memoryDeviceContext) override;
 
 private:
     static const std::wstring TITLE_STRING;
     
     static const std::vector<std::wstring> MENU_STRINGS;
     static const std::vector<std::wstring> SELECTED_MENU_STRINGS;
- 
-    unsigned int mSelectedMenu;
 };
 

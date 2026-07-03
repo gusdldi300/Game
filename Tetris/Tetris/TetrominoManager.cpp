@@ -8,9 +8,8 @@
 class Vector2;
 
 const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_COUNT = 40U;
-const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_SHOW_COUNT = 5U;
 
-TetrominoManager::TetrominoManager(Vector2 leftTopPosition)
+TetrominoManager::TetrominoManager()
 {
     std::random_device randomDevice;
     std::mt19937 gen(randomDevice());
