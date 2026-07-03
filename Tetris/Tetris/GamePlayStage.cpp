@@ -111,13 +111,18 @@ eStageType GamePlayStage::Update(double deltaTime)
 
 void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution)
 {
-    // Todo: Move to static
-    const float GRID_HEIGHT = MainBoard::GRID_ROW_SIZE * BLOCK_LENGTH;
-    const float GRID_WIDTH = MainBoard::GRID_COL_SIZE * BLOCK_LENGTH;
+    // Todo: Move to class static
+    static const unsigned int WALL_SIZE = 2U;
 
-    const float BOX_LENGTH = 250.f;
-    const float DRAW_OFFSET = 30.f;
-    const float PRINT_STRING_OFFSET = 30.f;
+    static const unsigned int GRID_ROW_SIZE = 20U + 2U + WALL_SIZE; // SPAWN
+    static const unsigned int GRID_COL_SIZE = 10U + WALL_SIZE;
+
+    static const float GRID_HEIGHT = GRID_ROW_SIZE * BLOCK_LENGTH;
+    static const float GRID_WIDTH = GRID_COL_SIZE * BLOCK_LENGTH;
+
+    static const float BOX_LENGTH = 250.f;
+    static const float DRAW_OFFSET = 30.f;
+    static const float PRINT_STRING_OFFSET = 30.f;
 
     // Draw hold
     Vector2 holdBoxStartVector = { DRAW_OFFSET, DRAW_OFFSET };
@@ -156,15 +161,54 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
         TextOut(memoryDeviceContext, infoBoxStartVector.X + DRAW_OFFSET, infoBoxStartVector.Y + (DRAW_OFFSET * 2), printLevel.c_str(), printLevel.length());
     }
 
-    // Draw main board
-    Vector2 mainBoardStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
+    Vector2 wallStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
+    {
+        int leftWallStartX = wallStartVector.X;
+        int rightWallStartX = wallStartVector.X + (BLOCK_LENGTH * (GRID_COL_SIZE - 1));
+        for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
+        {
+            int wallStartY = wallStartVector.Y + (row * BLOCK_LENGTH);
+
+            Rectangle(memoryDeviceContext,
+                leftWallStartX,
+                wallStartY,
+                leftWallStartX + BLOCK_LENGTH,
+                wallStartY + BLOCK_LENGTH);
+
+            Rectangle(memoryDeviceContext,
+                rightWallStartX,
+                wallStartY,
+                rightWallStartX + BLOCK_LENGTH,
+                wallStartY + BLOCK_LENGTH);
+        }
+
+        int upWallStartY = wallStartVector.Y;
+        int downWallStartY = wallStartVector.Y + (BLOCK_LENGTH * (GRID_ROW_SIZE - 1));
+        for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
+        {
+            int wallStartX = wallStartVector.X + (col * BLOCK_LENGTH);
+
+            Rectangle(memoryDeviceContext,
+                wallStartX,
+                upWallStartY,
+                wallStartX + BLOCK_LENGTH,
+                upWallStartY + BLOCK_LENGTH);
+
+            Rectangle(memoryDeviceContext,
+                wallStartX,
+                downWallStartY,
+                wallStartX + BLOCK_LENGTH,
+                downWallStartY + BLOCK_LENGTH);
+        }
+    }
+
+    Vector2 mainBoardStartVector = { wallStartVector.X + BLOCK_LENGTH, wallStartVector.Y + BLOCK_LENGTH };
     {
         const bool* const* drawGrid = mMainBoard->GetGrid();
-        
 
-        for (unsigned int row = 0; row < MainBoard::GRID_ROW_SIZE; ++row)
+        for (unsigned int row = 0; row < MainBoard::BOARD_ROW_SIZE; ++row)
         {
-            for (unsigned int col = 0; col < MainBoard::GRID_COL_SIZE; ++col)
+            for (unsigned int col = 0; col < MainBoard::BOARD_COL_SIZE; ++col)
             {
                 if (drawGrid[row][col] == false)
                 {
@@ -175,10 +219,10 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
                 int renderStartY = mainBoardStartVector.Y + (row * BLOCK_LENGTH);
 
                 Rectangle(memoryDeviceContext,
-                          renderStartX,
-                          renderStartY,
-                          renderStartX + BLOCK_LENGTH,
-                          renderStartY + BLOCK_LENGTH);
+                    renderStartX,
+                    renderStartY,
+                    renderStartX + BLOCK_LENGTH,
+                    renderStartY + BLOCK_LENGTH);
             }
 
             // Todo: Code duplicate, draw tetromino
@@ -187,7 +231,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
     }
 
     // Draw next tetrominos
-    Vector2 nextBoxStartVector = { mainBoardStartVector.X + (BLOCK_LENGTH * MainBoard::GRID_COL_SIZE) + DRAW_OFFSET, mainBoardStartVector.Y };
+    Vector2 nextBoxStartVector = { wallStartVector.X + (BLOCK_LENGTH * GRID_COL_SIZE) + DRAW_OFFSET, wallStartVector.Y };
     {
         Rectangle(memoryDeviceContext,
             nextBoxStartVector.X,
@@ -196,7 +240,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
             nextBoxStartVector.Y + (GRID_HEIGHT - (BLOCK_LENGTH * 2)));
 
         // Todo: Magic number
-        Vector2 nextTetrominoStartVector = { nextBoxStartVector.X + (BOX_LENGTH / 2) - (BLOCK_LENGTH * 3), (BLOCK_LENGTH * 2) };//nextBoxStartVector.Y + (BOX_LENGTH / 2) - BLOCK_LENGTH };
+        Vector2 nextTetrominoStartVector = { nextBoxStartVector.X + (BOX_LENGTH / 2) - (BLOCK_LENGTH * 3), (BLOCK_LENGTH * 2) }; //nextBoxStartVector.Y + (BOX_LENGTH / 2) - BLOCK_LENGTH };
         
         const std::list<Tetromino*> nextTetrominoList = mTetrominoManager->GetNextTetrominoList();
 

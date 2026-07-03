@@ -23,41 +23,28 @@ MainBoard::MainBoard(Tetromino* tetromino)
 {
     respawnActiveTetromino();
     
-    mbGrid = new bool* [GRID_ROW_SIZE];
-    for (int row = 0; row < GRID_ROW_SIZE; ++row)
+    mbBoard = new bool* [BOARD_ROW_SIZE];
+    for (int row = 0; row < BOARD_ROW_SIZE; ++row)
     {
-        mbGrid[row] = new bool[GRID_COL_SIZE];
+        mbBoard[row] = new bool[BOARD_COL_SIZE];
 
-        memset(mbGrid[row], false, sizeof(bool) * GRID_COL_SIZE);
-    }
-
-    // Todo: row = SPAWN_ZONE_ROW_SIZE
-    for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
-    {
-        mbGrid[row][0] = true;
-        mbGrid[row][GRID_COL_SIZE - 1] = true;
-    }
-
-    for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
-    {
-        mbGrid[0][col] = true;
-        mbGrid[GRID_ROW_SIZE - 1][col] = true;
+        memset(mbBoard[row], false, sizeof(bool) * BOARD_COL_SIZE);
     }
 }
 
 MainBoard::~MainBoard()
 {
-    for (int row = 0; row < GRID_ROW_SIZE; ++row)
+    for (int row = 0; row < BOARD_ROW_SIZE; ++row)
     {
-        delete[] mbGrid[row];
+        delete[] mbBoard[row];
     }
 
-    delete[] mbGrid;
+    delete[] mbBoard;
 }
 
 const bool* const* MainBoard::GetGrid() const
 {
-    return mbGrid;
+    return mbBoard;
 }
 
 unsigned int MainBoard::ClearFullLines()
@@ -65,13 +52,13 @@ unsigned int MainBoard::ClearFullLines()
     unsigned int lineClearCount = 0;
 
     // Todo: Magic number
-    for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row <= BOARD_END_ROW; ++row)
+    for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row < BOARD_ROW_SIZE; ++row)
     {
         bool bLineFull = true;
 
-        for (unsigned int col = BOARD_START_COL; col <= BOARD_END_COL; ++col)
+        for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
         {
-            if (mbGrid[row][col] == false)
+            if (mbBoard[row][col] == false)
             {
                 bLineFull = false;
 
@@ -88,9 +75,9 @@ unsigned int MainBoard::ClearFullLines()
 
         for (unsigned int copyRow = row; copyRow >= SPAWN_ZONE_ROW_SIZE; --copyRow)
         {
-            for (unsigned int copyCol = BOARD_START_COL; copyCol <= BOARD_END_COL; ++copyCol)
+            for (unsigned int copyCol = 0; copyCol < BOARD_COL_SIZE; ++copyCol)
             {
-                mbGrid[copyRow][copyCol] = mbGrid[copyRow - 1][copyCol];
+                mbBoard[copyRow][copyCol] = mbBoard[copyRow - 1][copyCol];
             }
         }
     }
@@ -129,20 +116,17 @@ void MainBoard::LockDownTetromino(TetrominoManager* tetrominoManager)
 {
     for (const Position& blockPosition : mActiveTetromino->GetBlockPositions())
     {
-        mbGrid[blockPosition.GetRow()][blockPosition.GetCol()] = true;
+        mbBoard[blockPosition.GetRow()][blockPosition.GetCol()] = true;
     }
 }
 
 bool MainBoard::IsGameOver() const
 {
-    for (unsigned int row = BOARD_START_ROW; row <= SPAWN_ZONE_ROW_SIZE; ++row)
+    for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
     {
-        for (unsigned int col = BOARD_START_COL; col <= BOARD_END_COL; ++col)
+        if (mbBoard[SPAWN_ZONE_ROW_SIZE - 1][col])
         {
-            if (mbGrid[row][col])
-            {
-                return true;
-            }
+            return true;
         }
     }
 
@@ -232,13 +216,13 @@ bool MainBoard::canPlaceOnGrid(Position position) const
     int positionRow = position.GetRow();
     int positionCol = position.GetCol();
 
-    if ((positionRow < SPAWN_TETROMINO_ROW || positionRow > BOARD_END_ROW) ||
-        (positionCol < BOARD_START_COL || positionCol > BOARD_END_COL))
+    if (positionRow < 0 || positionRow >= BOARD_ROW_SIZE ||
+        positionCol < 0 || positionCol >= BOARD_COL_SIZE)
     {
         return false;
     }
 
-    if (mbGrid[positionRow][positionCol])
+    if (mbBoard[positionRow][positionCol])
     {
         return false;
     }
