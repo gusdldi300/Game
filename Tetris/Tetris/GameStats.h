@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameResult.h"
+
 class TickTimer;
 
 class GameStats
@@ -12,6 +14,8 @@ public:
     unsigned int GetTotalScore() const;
     unsigned int GetStageLevel() const;
     double GetTickRate() const;
+    GameResult GetResult() const;
+    
     bool Ticked(TickTimer* tickTimer) const;
 
     void UpdateInformationsFrom(unsigned int linesClearedCount);

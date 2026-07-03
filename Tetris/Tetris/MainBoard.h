@@ -45,6 +45,7 @@ private:
 public:
     // Todo: 쓸모없는 정적 변수 너무 많음
     // cpp 에 초기화하기
+    // Todo: 벽은 그리드에 표기 안하는게 좋을 듯
     static const unsigned int WALL_COL_SIZE = 2U;
     static const unsigned int WALL_ROW_SIZE = 2U;
 
@@ -56,7 +57,7 @@ public:
 private:
     static const unsigned int BOARD_START_ROW = 1U;
     static const unsigned int BOARD_START_COL = 1U;
-    static const unsigned int BOARD_END_COL = GRID_COL_SIZE - 2;
+    static const unsigned int BOARD_END_COL = GRID_COL_SIZE - 1;
     static const unsigned int BOARD_END_ROW = GRID_ROW_SIZE - 2;
     
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT = 5U;

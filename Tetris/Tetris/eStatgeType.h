@@ -4,6 +4,6 @@ enum class eStageType
 {
     Start,
     Play,
-    Setting,
-    Exit
+    //Setting,
+    End
 };

@@ -1,8 +1,14 @@
 
-#include <string>
 
-#include "framework.h"
-#include "GameStage.h"
+#include "EndStage.h"
+#include "KeyManager.h"
+#include <cassert>
 
-const float GameStage::BLOCK_LENGTH = 30.f;
+GameStage::GameStage(Vector2 drawStartVector)
+    : mDrawStartVector(drawStartVector)
+{
+}
+
+
+
 

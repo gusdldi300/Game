@@ -6,10 +6,11 @@
 #include "KeyManager.h"
 #include "TickTimer.h"
 
+const float GamePlayStage::BLOCK_LENGTH = 30.f;
 const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 
 GamePlayStage::GamePlayStage()
-    : GameStage() 
+    : GameStage({ 0.f, 0.f })
     , mTetrominoManager(new TetrominoManager({ 500.f, 0.f }))
     //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
     , mGameStats(new GameStats())
@@ -24,6 +25,11 @@ GamePlayStage::~GamePlayStage()
     delete mTetrominoManager;
     delete mGameStats;
     delete mTickTimer;
+}
+
+GameResult GamePlayStage::GetGameResult() const
+{
+    return mGameStats->GetResult();
 }
 
 eStageType GamePlayStage::Update(double deltaTime)
@@ -87,7 +93,7 @@ eStageType GamePlayStage::Update(double deltaTime)
     mMainBoard->LockDownTetromino(mTetrominoManager);
     if (mMainBoard->IsGameOver())
     {
-        return eStageType::Start;
+        return eStageType::End;
     }
 
     // Todo: Çò°¥¸²
@@ -154,6 +160,7 @@ void GamePlayStage::Render(HDC windowDeviceContext, HDC memoryDeviceContext, POI
     Vector2 mainBoardStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
     {
         const bool* const* drawGrid = mMainBoard->GetGrid();
+        
 
         for (unsigned int row = 0; row < MainBoard::GRID_ROW_SIZE; ++row)
         {

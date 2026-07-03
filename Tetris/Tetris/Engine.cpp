@@ -2,10 +2,12 @@
 #include <cassert>
 
 #include "Engine.h"
-#include "GameStage.h"
 #include "TimeManager.h"
 #include "KeyManager.h"
+#include "GameStage.h"
 #include "StartStage.h"
+#include "EndStage.h"
+
 
 Engine* Engine::mEngine = nullptr;
 
@@ -107,7 +109,7 @@ Engine::Engine(HWND hWindow, POINT resolution)
     {
         mGameStages.push_back(new StartStage());
         mGameStages.push_back(new GamePlayStage());
-        //mGameStages.push_back(new EndStage());
+        mGameStages.push_back(new EndStage());
 
         mCurrentStage = mGameStages[static_cast<unsigned int>(eStageType::Start)];
     }
@@ -135,8 +137,17 @@ void Engine::update()
 
     assert(mCurrentStage != nullptr);
     eStageType stageType = mCurrentStage->Update(deltaTime);
-
     unsigned int currentStageIndex = static_cast<unsigned int>(stageType);
+
+    if (stageType == eStageType::End)
+    {
+        unsigned int playStageIndex = static_cast<unsigned int>(eStageType::Play);
+        const GamePlayStage& gamePlayStage = *static_cast<GamePlayStage*>(mGameStages[playStageIndex]);
+
+        EndStage* endStage = static_cast<EndStage*>(mGameStages[currentStageIndex]);
+        endStage->UpdateResult(gamePlayStage.GetGameResult());
+    }
+
     mCurrentStage = mGameStages[currentStageIndex];
 }
 

@@ -35,6 +35,16 @@ double GameStats::GetTickRate() const
     return mTickRate;
 }
 
+GameResult GameStats::GetResult() const
+{
+    GameResult result;
+    result.Score = mTotalScore;
+    result.LineCleared = mTotalLinesCleared;
+    result.Level = mStageLevel;
+
+    return result;
+}
+
 bool GameStats::Ticked(TickTimer* tickTimer) const
 {
     if (tickTimer->GetAccumulatedTime() >= mTickRate)

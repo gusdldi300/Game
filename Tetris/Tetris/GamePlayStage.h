@@ -12,6 +12,7 @@ public:
     GamePlayStage();
     virtual ~GamePlayStage();
 
+    GameResult GetGameResult() const;
     eStageType Update(double deltaTime) override;
     void Render(HDC windowDeviceContext, HDC memoryDeviceContext, POINT windowResolution) override;
 
@@ -19,8 +20,9 @@ private:
     void drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext);
 
 private:
+    static const float BLOCK_LENGTH;
     static const double SOFT_DROP_SPEED_DIVISOR;
-    
+
     MainBoard* mMainBoard;
     TetrominoManager* mTetrominoManager;
     GameStats* mGameStats;

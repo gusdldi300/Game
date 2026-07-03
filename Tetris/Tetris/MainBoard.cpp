@@ -21,9 +21,8 @@ MainBoard::MainBoard(Tetromino* tetromino)
     : mActiveTetromino(tetromino) 
     , mHoldTetrominoOrNull(nullptr)
 {
-    // Todo: 시간 결합 문제
     respawnActiveTetromino();
-
+    
     mbGrid = new bool* [GRID_ROW_SIZE];
     for (int row = 0; row < GRID_ROW_SIZE; ++row)
     {
@@ -89,7 +88,7 @@ unsigned int MainBoard::ClearFullLines()
 
         for (unsigned int copyRow = row; copyRow >= SPAWN_ZONE_ROW_SIZE; --copyRow)
         {
-            for (unsigned int copyCol = BOARD_START_COL; copyCol < BOARD_END_COL; ++copyCol)
+            for (unsigned int copyCol = BOARD_START_COL; copyCol <= BOARD_END_COL; ++copyCol)
             {
                 mbGrid[copyRow][copyCol] = mbGrid[copyRow - 1][copyCol];
             }
