@@ -13,10 +13,11 @@ public:
     unsigned int GetTotalLinesCleared() const;
     unsigned int GetTotalScore() const;
     unsigned int GetStageLevel() const;
-    double GetTickRate() const;
+    double GetFallTickRate() const;
+
     GameResult GetResult() const;
     
-    bool Ticked(TickTimer* tickTimer) const;
+    bool HasRiseTicked(TickTimer* tickTimer) const;
 
     void UpdateInformationsFrom(unsigned int linesClearedCount);
 
@@ -27,6 +28,7 @@ private:
     unsigned int mTotalScore;
     unsigned int mTotalLinesCleared;
     unsigned int mStageLevel;
-    double mTickRate;
+    double mFallTickRate;
+    double mRiseTickRate;
 };
 

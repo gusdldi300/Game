@@ -33,34 +33,38 @@ public:
     Tetromino(eTetrominoType type);
     virtual ~Tetromino() = default;
     
-    Position GetPositionMoveOffset() const;
     std::vector<Position> GetBlockPositions() const;
-    std::vector<Position> GetRotatedBlockPositions(eRotationState rotationState) const;
 
+    std::vector<Position> GetRotatedCWBlockPositions() const;
+    std::vector<Position> GetMovedOneStepPositions(eDirection direction) const;
+    
     eRotationState GetRotationState() const;
-    eTetrominoType GetType() const;
 
-    void MovePosition(Position position);
+    //void SetMoveOffset(Position position);
+    void MoveOneStep(eDirection direction);
     void RotateCW();
+    void SetMoveOffset(Position moveOffset);
 
     void ResetStates();
 
-protected:
+private:
+    std::vector<Position> getTransformedBlockPositions(eRotationState rotationState, eDirection direction) const;
 
 public:
     static const unsigned int TYPES_COUNT;
-
-private:
-    static const unsigned int ROTATATION_STATES_COUNT;
-    
-    static const std::vector<Position> BLOCK_POSITIONS[][4];
+    static const Position ONE_STEP_MOVE_OFFSETS[];
 
 protected:
     // Todo: 센터 포지션 하나만 있으면, 나머지 좌표들 모두 계산 가능함. 이렇게 바꾸기
-    //std::vector<Position> mBlockPositions;
-
     Position mMoveOffset;
     eRotationState mRotationState;
     eTetrominoType mType;
+
+private:
+    static const unsigned int ROTATATION_STATES_COUNT;
+    static const unsigned int DIRECTION_NONE;
+
+    // Todo: magic number
+    static const std::vector<Position> BLOCK_POSITIONS[][4];
 };
 

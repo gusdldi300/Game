@@ -11,7 +11,8 @@ GameStats::GameStats()
     : mTotalScore(0)
     , mTotalLinesCleared(0)
     , mStageLevel(1)
-    , mTickRate(2.0)
+    , mFallTickRate(2.0)
+    , mRiseTickRate(5.0)
 {
 }
 
@@ -30,9 +31,9 @@ unsigned int GameStats::GetStageLevel() const
     return mStageLevel;
 }
 
-double GameStats::GetTickRate() const
+double GameStats::GetFallTickRate() const
 {
-    return mTickRate;
+    return mFallTickRate;
 }
 
 GameResult GameStats::GetResult() const
@@ -45,12 +46,10 @@ GameResult GameStats::GetResult() const
     return result;
 }
 
-bool GameStats::Ticked(TickTimer* tickTimer) const
+bool GameStats::HasRiseTicked(TickTimer* tickTimer) const
 {
-    if (tickTimer->GetAccumulatedTime() >= mTickRate)
+    if (tickTimer->GetAccumulatedTime() >= mRiseTickRate)
     {
-        tickTimer->ResetTimer();
-
         return true;
     }
 
@@ -64,5 +63,6 @@ void GameStats::UpdateInformationsFrom(unsigned int linesClearedCount)
 
     mStageLevel = (mTotalLinesCleared / CLEAR_LINES_FOR_LEVEL_UP) + 1;
     
-    mTickRate /= mStageLevel;
+    mFallTickRate /= mStageLevel;
+    mRiseTickRate /= mStageLevel;
 }

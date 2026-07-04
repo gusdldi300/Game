@@ -3,7 +3,17 @@
 #include "Tetromino.h"
 
 const unsigned int Tetromino::TYPES_COUNT = 7U;
+
+const unsigned int DIRECTION_NONE = 10U;
 const unsigned int Tetromino::ROTATATION_STATES_COUNT = 4U;
+
+const Position Tetromino::ONE_STEP_MOVE_OFFSETS[] =
+{
+    { 0, 0 },
+    { 0, 1 },
+    { 1, 0 },
+    { 0, -1 }
+};
 
 // Todo: Check s tetromino, akward rotation
 // Todo: magic number
@@ -73,31 +83,37 @@ Tetromino::Tetromino(eTetrominoType type)
 {
 }
 
-Position Tetromino::GetPositionMoveOffset() const
-{
-    return mMoveOffset;
-}
-
-void Tetromino::MovePosition(Position position)
-{
-    mMoveOffset = position;
-}
-
 std::vector<Position> Tetromino::GetBlockPositions() const
 {
-    return GetRotatedBlockPositions(mRotationState);
+    return getTransformedBlockPositions(mRotationState, eDirection::None);
 }
 
-std::vector<Position> Tetromino::GetRotatedBlockPositions(eRotationState rotationState) const
+std::vector<Position> Tetromino::GetRotatedCWBlockPositions() const
+{
+    eRotationState nextRotationState = static_cast<eRotationState>(static_cast<unsigned int>(mRotationState) + 1);
+
+    return getTransformedBlockPositions(nextRotationState, eDirection::None);
+}
+
+std::vector<Position> Tetromino::GetMovedOneStepPositions(eDirection direction) const
+{
+    return getTransformedBlockPositions(mRotationState, direction);
+}
+
+std::vector<Position> Tetromino::getTransformedBlockPositions(eRotationState rotationState, eDirection direction) const
 {
     std::vector<Position> blockPositions;
     //blockPositions.reserve(BLOCKS_COUNT);
 
     unsigned int typeIndex = static_cast<unsigned int>(mType);
     unsigned int rotationIndex = static_cast<unsigned int>(rotationState);
+    unsigned int directionIndex = static_cast<unsigned int>(direction);
+
+    Position moveOffset = mMoveOffset + ONE_STEP_MOVE_OFFSETS[directionIndex];
+
     for (const Position& position : BLOCK_POSITIONS[typeIndex][rotationIndex])
     {
-        blockPositions.push_back(position + mMoveOffset);
+        blockPositions.push_back(position + moveOffset);
     }
 
     return blockPositions;
@@ -108,9 +124,9 @@ eRotationState Tetromino::GetRotationState() const
     return mRotationState;
 }
 
-eTetrominoType Tetromino::GetType() const
+void Tetromino::MoveOneStep(eDirection direction)
 {
-    return mType;
+    mMoveOffset += ONE_STEP_MOVE_OFFSETS[static_cast<unsigned int>(direction)];
 }
 
 void Tetromino::RotateCW()
@@ -119,6 +135,11 @@ void Tetromino::RotateCW()
     nextRotationStateIndex %= static_cast<unsigned int>(eRotationState::End);
 
     mRotationState = static_cast<eRotationState>(nextRotationStateIndex);
+}
+
+void Tetromino::SetMoveOffset(Position moveOffset)
+{
+    mMoveOffset = moveOffset;
 }
 
 void Tetromino::ResetStates()

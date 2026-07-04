@@ -11,7 +11,7 @@ public:
     static TimeManager* GetInstance();
 
     double GetFrameDeltaTime() const;
-    bool HasTicked() const;
+    bool HasRiseTicked() const;
     void ResetTick();
     
     void Update();
@@ -31,7 +31,7 @@ private:
     double mAccumulatedFrameDeltaTime;
     unsigned int mFrameCount;
 
-    double mTickRate;
+    double mFallTickRate;
     bool mbTicked;
 };
 

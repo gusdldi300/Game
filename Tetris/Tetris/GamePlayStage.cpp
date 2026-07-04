@@ -14,7 +14,8 @@ GamePlayStage::GamePlayStage()
     , mTetrominoManager(new TetrominoManager())
     //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
     , mGameStats(new GameStats())
-    , mTickTimer(new TickTimer())
+    , mFallTickTimer(new TickTimer())
+    , mRiseTickTimer(new TickTimer())
 {
     mMainBoard = new MainBoard(mTetrominoManager->GetNextTetromino());
 }
@@ -24,7 +25,8 @@ GamePlayStage::~GamePlayStage()
     delete mMainBoard;
     delete mTetrominoManager;
     delete mGameStats;
-    delete mTickTimer;
+    delete mFallTickTimer;
+    delete mRiseTickTimer;
 }
 
 GameResult GamePlayStage::GetGameResult() const
@@ -36,8 +38,20 @@ eStageType GamePlayStage::Update(double deltaTime)
 {
     bool bTetrominoAlive = true;
 
-    double tickRate = mGameStats->GetTickRate();
-    mTickTimer->AccumulatedTime(deltaTime);
+    double fallTickRate = mGameStats->GetFallTickRate();
+    mFallTickTimer->AccumulateTime(deltaTime);
+    
+    mRiseTickTimer->AccumulateTime(deltaTime);
+
+    if (mGameStats->HasRiseTicked(mRiseTickTimer))
+    {
+        if (mMainBoard->RiseBlocksOneStep())
+        {
+            return eStageType::End;
+        }
+
+        mRiseTickTimer->ResetTimer();
+    }
 
     // Move tetromino on board
     {
@@ -53,7 +67,7 @@ eStageType GamePlayStage::Update(double deltaTime)
         }
         else if (keyManager->GetKeyState(eKey::Down) == eKeyState::Hold)
         {
-            tickRate /= SOFT_DROP_SPEED_DIVISOR;
+            fallTickRate /= SOFT_DROP_SPEED_DIVISOR;
         }
         else if (keyManager->GetKeyState(eKey::Up) == eKeyState::Press)
         {
@@ -78,11 +92,11 @@ eStageType GamePlayStage::Update(double deltaTime)
         }
     }
 
-    if (mTickTimer->GetAccumulatedTime() >= tickRate)
+    if (mFallTickTimer->GetAccumulatedTime() >= fallTickRate)
     {
         bTetrominoAlive = mMainBoard->MoveTetrominoOneStep(eDirection::Down);
 
-        mTickTimer->ResetTimer();
+        mFallTickTimer->ResetTimer();
     }
 
     if (bTetrominoAlive)
@@ -95,10 +109,10 @@ eStageType GamePlayStage::Update(double deltaTime)
     {
         return eStageType::End;
     }
-
     // Todo: Çò°¥¸²
     mMainBoard->ReleaseActiveTetromino(mTetrominoManager);
     mMainBoard->SetNextTetrominoFrom(mTetrominoManager);
+
 
     unsigned int clearLinesCount = mMainBoard->ClearFullLines();
     if (clearLinesCount > 0)
@@ -139,7 +153,7 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
         {
             // Todo: duplicate
             Vector2 holdTetrominoStartVector = { holdBoxStartVector.X + (BOX_LENGTH / 2) - BLOCK_LENGTH, (BOX_LENGTH / 2) - BLOCK_LENGTH };
-            drawTetromino(holdTetrominoStartVector, *holdTetrominoOrNull, memoryDeviceContext);
+            drawTetrominoBlocks(memoryDeviceContext, holdTetrominoStartVector, holdTetrominoOrNull->GetBlockPositions());
         }
     }
 
@@ -221,10 +235,12 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
                     renderStartX + BLOCK_LENGTH,
                     renderStartY + BLOCK_LENGTH);
             }
-
-            // Todo: Code duplicate, draw tetromino
-            drawTetromino(mainBoardStartVector, *mMainBoard->GetActiveTetromino(), memoryDeviceContext);
         }
+
+        drawTetrominoBlocks(memoryDeviceContext, mainBoardStartVector, mMainBoard->GetActiveTetromino()->GetBlockPositions());
+        
+        std::vector<Position> ghostTetrominoBlocks = mMainBoard->GetGhostTetrominoBlockPositions();
+        drawTetrominoBlocks(memoryDeviceContext, mainBoardStartVector, ghostTetrominoBlocks);
     }
 
     // Draw next tetrominos
@@ -249,8 +265,7 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
                 break;
             }
 
-            drawTetromino(nextTetrominoStartVector, *nextTetromino, memoryDeviceContext);
-
+            drawTetrominoBlocks(memoryDeviceContext, nextTetrominoStartVector, nextTetromino->GetBlockPositions());
             nextTetrominoStartVector.Y += (DRAW_OFFSET * 4);
 
             drawCount--;
@@ -258,12 +273,14 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
     }
 }
 
-void GamePlayStage::drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext)
+void GamePlayStage::drawTetrominoBlocks(HDC memoryDeviceContext, Vector2 drawLeftTopVector, const std::vector<Position>& tetrominoBlocks)
 {
-    for (const Position& blockPosition : tetromino.GetBlockPositions())
+    //std::vector<Position> blockPositions = tetromino.GetBlockPositions();
+
+    for (const Position& blockPosition : tetrominoBlocks)
     {
-        int renderStartY = startVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH);
-        int renderStartX = startVector.X + (blockPosition.GetCol() * BLOCK_LENGTH);
+        int renderStartY = drawLeftTopVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH);
+        int renderStartX = drawLeftTopVector.X + (blockPosition.GetCol() * BLOCK_LENGTH);
 
         Rectangle(memoryDeviceContext,
                  renderStartX,

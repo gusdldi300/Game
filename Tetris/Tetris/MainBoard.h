@@ -24,6 +24,7 @@ public:
     bool AddHold(TetrominoManager* tetrominoManager);
     bool UseHold(TetrominoManager* tetrominoManager);
 
+    bool RiseBlocksOneStep();
     unsigned int ClearFullLines();
     void LockDownTetromino(TetrominoManager* tetrominoManager);
     bool IsGameOver() const;
@@ -33,14 +34,17 @@ public:
     // Todo: Check later
     const Tetromino* GetActiveTetromino() const;
     const Tetromino* GetHoldTetrominoOrNull() const;
+    const std::vector<Position> GetGhostTetrominoBlockPositions() const;
+
 
     // Todo: 사용하기 헷갈림
     void ReleaseActiveTetromino(TetrominoManager* tetrominoManager);
     void SetNextTetrominoFrom(TetrominoManager* tetrominoManager);
 
 private:
-    bool canPlaceOnGrid(Position position) const;
+    bool canPlaceBlocksOnBoard(const std::vector<Position>& blockPositions) const;
     void respawnActiveTetromino();
+    //void moveBlocksOneStep(std::vector<Position>* outBlockPositions, eDirection direction);
 
 public:
     // Todo: 쓸모없는 정적 변수 너무 많음, cpp 에 초기화하기
@@ -52,8 +56,6 @@ public:
 private:
     static const unsigned int SPAWN_TETROMINO_ROW = 0U;
     static const unsigned int SPAWN_TETROMINO_COL = 3U;
-
-    static const Position ONE_STEP_MOVE_OFFSETS[];
 
     Tetromino* mActiveTetromino;
     Tetromino* mHoldTetrominoOrNull;

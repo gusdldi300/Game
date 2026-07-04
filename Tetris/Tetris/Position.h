@@ -11,7 +11,9 @@ public:
     int GetCol() const;
 
     Position operator+(const Position& other) const;
+
     void operator+=(const Position& other);
+    void operator-=(const Position& other);
     void operator=(const Position& other);
 
 private:

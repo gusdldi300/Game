@@ -20,10 +20,8 @@ int Position::GetCol() const
 
 Position Position::operator+(const Position& other) const
 {
-    int rowSum = mRow + other.mRow;
-    int colSum = mCol + other.mCol;
-
-    Position sumPosition(rowSum, colSum);
+    Position sumPosition(mRow, mCol);
+    sumPosition += other;
 
     return sumPosition;
 }
@@ -32,6 +30,12 @@ void Position::operator+=(const Position& other)
 {
     mRow += other.mRow;
     mCol += other.mCol;
+}
+
+void Position::operator-=(const Position& other)
+{
+    mRow -= other.mRow;
+    mCol -= other.mCol;
 }
 
 void Position::operator=(const Position& other)

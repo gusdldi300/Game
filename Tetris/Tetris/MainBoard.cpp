@@ -10,13 +10,6 @@
 #include "TetrominoManager.h"
 #include "HoldManager.h"
 
-const Position MainBoard::ONE_STEP_MOVE_OFFSETS[] =
-{
-    { 0, 1 },
-    { 1, 0 },
-    { 0, -1 }
-};
-
 MainBoard::MainBoard(Tetromino* tetromino)
     : mActiveTetromino(tetromino) 
     , mHoldTetrominoOrNull(nullptr)
@@ -45,6 +38,26 @@ MainBoard::~MainBoard()
 const bool* const* MainBoard::GetGrid() const
 {
     return mbBoard;
+}
+
+bool MainBoard::RiseBlocksOneStep()
+{
+    for (unsigned int copyRow = SPAWN_ZONE_ROW_SIZE; copyRow < (BOARD_ROW_SIZE - 1); ++copyRow)
+    {
+        for (unsigned int copyCol = 0; copyCol < BOARD_COL_SIZE; ++copyCol)
+        {
+            mbBoard[copyRow][copyCol] = mbBoard[copyRow + 1][copyCol];
+        }
+    }
+
+    for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
+    {
+        mbBoard[BOARD_ROW_SIZE - 1][col] = true;
+    }
+
+    mbBoard[BOARD_ROW_SIZE - 1][SPAWN_TETROMINO_COL] = false;
+
+    return IsGameOver();
 }
 
 unsigned int MainBoard::ClearFullLines()
@@ -111,6 +124,26 @@ const Tetromino* MainBoard::GetHoldTetrominoOrNull() const
     return mHoldTetrominoOrNull;
 }
 
+const std::vector<Position> MainBoard::GetGhostTetrominoBlockPositions() const
+{
+    std::vector<Position> blockPositions = mActiveTetromino->GetBlockPositions();
+
+    while (canPlaceBlocksOnBoard(blockPositions))
+    {
+        for (Position& blockPosition : blockPositions)
+        {
+            blockPosition += Tetromino::ONE_STEP_MOVE_OFFSETS[static_cast<unsigned int>(eDirection::Down)];
+        }
+    }
+    
+    // Todo: Code duplicated
+    for (Position& blockPosition : blockPositions)
+    {
+        blockPosition -= Tetromino::ONE_STEP_MOVE_OFFSETS[static_cast<unsigned int>(eDirection::Down)];
+    }
+
+    return blockPositions;
+}
 
 void MainBoard::LockDownTetromino(TetrominoManager* tetrominoManager)
 {
@@ -135,40 +168,21 @@ bool MainBoard::IsGameOver() const
 
 bool MainBoard::MoveTetrominoOneStep(eDirection direction)
 {
-    unsigned int dirIndex = static_cast<unsigned int>(direction);
-
-    for (const Position& blockPosition : mActiveTetromino->GetBlockPositions())
+    if (canPlaceBlocksOnBoard(mActiveTetromino->GetMovedOneStepPositions(direction)) == false)
     {
-        Position nextPosition = blockPosition + ONE_STEP_MOVE_OFFSETS[dirIndex];
-        if (canPlaceOnGrid(nextPosition) == false)
-        {
-            return false;
-        }
+        return false;
     }
 
-    Position newPosition = mActiveTetromino->GetPositionMoveOffset();
-    newPosition += MainBoard::ONE_STEP_MOVE_OFFSETS[dirIndex];
-
-    mActiveTetromino->MovePosition(newPosition);
+    mActiveTetromino->MoveOneStep(direction);
 
     return true;
 }
 
 bool MainBoard::RotateTetrominoCW()
 {
-    unsigned int nextRotationStateIndex = (static_cast<unsigned int>(mActiveTetromino->GetRotationState()) + 1);
-    nextRotationStateIndex %= static_cast<unsigned int>(eRotationState::End);
-
-    eRotationState nextRotationState = static_cast<eRotationState>(nextRotationStateIndex);
-
-    unsigned int typeIndex = static_cast<unsigned int>(mActiveTetromino->GetType());
-
-    for (const Position& rotatedPosition : mActiveTetromino->GetRotatedBlockPositions(nextRotationState))
+    if (canPlaceBlocksOnBoard(mActiveTetromino->GetRotatedCWBlockPositions()) == false)
     {
-        if (canPlaceOnGrid(rotatedPosition) == false)
-        {
-            return false;
-        }
+        return false;
     }
 
     mActiveTetromino->RotateCW();
@@ -209,21 +223,23 @@ bool MainBoard::UseHold(TetrominoManager* tetrominoManager)
     return true;
 }
 
-bool MainBoard::canPlaceOnGrid(Position position) const
+bool MainBoard::canPlaceBlocksOnBoard(const std::vector<Position>& blockPositions) const
 {
-    // Todo: 경계가 헷갈림. 상수 수정 필요
-    int positionRow = position.GetRow();
-    int positionCol = position.GetCol();
-
-    if (positionRow < 0 || positionRow >= BOARD_ROW_SIZE ||
-        positionCol < 0 || positionCol >= BOARD_COL_SIZE)
+    for (const Position& blockPosition : blockPositions)
     {
-        return false;
-    }
+        int positionRow = blockPosition.GetRow();
+        int positionCol = blockPosition.GetCol();
 
-    if (mbBoard[positionRow][positionCol])
-    {
-        return false;
+        if (positionRow < 0 || positionRow >= BOARD_ROW_SIZE ||
+            positionCol < 0 || positionCol >= BOARD_COL_SIZE)
+        {
+            return false;
+        }
+
+        if (mbBoard[positionRow][positionCol])
+        {
+            return false;
+        }
     }
 
     return true;
@@ -236,6 +252,6 @@ void MainBoard::respawnActiveTetromino()
 
     // Todo: Magic number
     mActiveTetromino->ResetStates();
-    mActiveTetromino->MovePosition({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
+    mActiveTetromino->SetMoveOffset({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
 }
 

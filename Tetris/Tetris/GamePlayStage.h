@@ -17,7 +17,7 @@ public:
     void Render(HDC memoryDeviceContext) override;
 
 private:
-    void drawTetromino(Vector2 startVector, const Tetromino& tetromino, HDC memoryDeviceContext);
+    void drawTetrominoBlocks(HDC memoryDeviceContext, Vector2 drawLeftTopVector, const std::vector<Position>& tetrominoBlocks);
 
 private:
     static const float BLOCK_LENGTH;
@@ -26,6 +26,7 @@ private:
     MainBoard* mMainBoard;
     TetrominoManager* mTetrominoManager;
     GameStats* mGameStats;
-    TickTimer* mTickTimer;
+    TickTimer* mFallTickTimer;
+    TickTimer* mRiseTickTimer;
 };
 

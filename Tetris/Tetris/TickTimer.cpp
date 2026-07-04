@@ -10,7 +10,7 @@ double TickTimer::GetAccumulatedTime() const
     return mAccumulatedTime;
 }
 
-void TickTimer::AccumulatedTime(double time)
+void TickTimer::AccumulateTime(double time)
 {
     mAccumulatedTime += time;
 }

@@ -7,7 +7,7 @@ public:
     virtual ~TickTimer() = default;
 
     double GetAccumulatedTime() const;
-    void AccumulatedTime(double time);
+    void AccumulateTime(double time);
     void ResetTimer();
 
 private:

@@ -36,7 +36,7 @@ TimeManager::TimeManager()
     : mFrameDeltaTime(0.0)
     , mAccumulatedFrameDeltaTime(0.0)
     , mFrameCount(0)
-    , mTickRate(0.5f)
+    , mFallTickRate(0.5f)
     , mbTicked(false)
 {
     mPrevCount = { 0, };
@@ -50,7 +50,7 @@ double TimeManager::GetFrameDeltaTime() const
     return mFrameDeltaTime;
 }
 
-bool TimeManager::HasTicked() const
+bool TimeManager::HasRiseTicked() const
 {
     return mbTicked;
 }
@@ -74,7 +74,7 @@ void TimeManager::Update()
     ++mFrameCount;
     mPrevCount = mCount;
 
-    if (mAccumulatedFrameDeltaTime >= mTickRate)
+    if (mAccumulatedFrameDeltaTime >= mFallTickRate)
     {
         unsigned int framesPerSec = mFrameCount;
         mAccumulatedFrameDeltaTime = 0;
