@@ -2,7 +2,7 @@
 
 #include "MainBoard.h"
 #include "TetrominoManager.h"
-#include "GameStats.h"
+#include "GameStat.h"
 #include "GameStage.h"
 
 class GamePlayStage : public GameStage
@@ -26,7 +26,7 @@ private:
 
     MainBoard* mMainBoard;
     TetrominoManager* mTetrominoManager;
-    GameStats* mGameStats;
+    GameStat* mGameStats;
     TickTimer* mFallTickTimer;
     TickTimer* mRiseTickTimer;
 };

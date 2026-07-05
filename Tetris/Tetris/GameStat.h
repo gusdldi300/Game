@@ -4,11 +4,11 @@
 
 class TickTimer;
 
-class GameStats
+class GameStat
 {
 public:
-    GameStats();
-    virtual ~GameStats() = default;
+    GameStat();
+    virtual ~GameStat() = default;
 
     unsigned int GetTotalLinesCleared() const;
     unsigned int GetTotalScore() const;

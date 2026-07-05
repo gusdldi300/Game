@@ -12,7 +12,7 @@ const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 GamePlayStage::GamePlayStage()
     : GameStage({ 0.f, 0.f })
     , mTetrominoManager(new TetrominoManager())
-    , mGameStats(new GameStats())
+    , mGameStats(new GameStat())
     , mFallTickTimer(new TickTimer())
     , mRiseTickTimer(new TickTimer())
 {

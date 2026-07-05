@@ -1,17 +1,17 @@
 #include <cassert>
 
-#include "GameStats.h"
+#include "GameStat.h"
 #include "TickTimer.h"
 
-const unsigned int GameStats::SCORES_PER_CLEAR_LINE = 100U;
-const unsigned int GameStats::CLEAR_LINES_FOR_LEVEL_UP = 3U;
+const unsigned int GameStat::SCORES_PER_CLEAR_LINE = 100U;
+const unsigned int GameStat::CLEAR_LINES_FOR_LEVEL_UP = 3U;
 
-const unsigned int GameStats::STAGE_START_LEVEL = 1U;
-const double GameStats::FALL_TICK_START_RATE = 2.0;
-const double GameStats::RISE_TICK_START_RATE = 2.0;
+const unsigned int GameStat::STAGE_START_LEVEL = 1U;
+const double GameStat::FALL_TICK_START_RATE = 2.0;
+const double GameStat::RISE_TICK_START_RATE = 2.0;
 
 // Todo: Magic number
-GameStats::GameStats()
+GameStat::GameStat()
     : mTotalScore(0)
     , mTotalLinesCleared(0)
     , mStageLevel(1)
@@ -20,27 +20,27 @@ GameStats::GameStats()
 {
 }
 
-unsigned int GameStats::GetTotalLinesCleared() const
+unsigned int GameStat::GetTotalLinesCleared() const
 {
     return mTotalLinesCleared;
 }
 
-unsigned int GameStats::GetTotalScore() const
+unsigned int GameStat::GetTotalScore() const
 {
     return mTotalScore;
 }
 
-unsigned int GameStats::GetStageLevel() const
+unsigned int GameStat::GetStageLevel() const
 {
     return mStageLevel;
 }
 
-double GameStats::GetFallTickRate() const
+double GameStat::GetFallTickRate() const
 {
     return mFallTickRate;
 }
 
-GameResult GameStats::GetResult() const
+GameResult GameStat::GetResult() const
 {
     GameResult result;
     result.Score = mTotalScore;
@@ -50,7 +50,7 @@ GameResult GameStats::GetResult() const
     return result;
 }
 
-bool GameStats::HasRiseTicked(TickTimer* tickTimer) const
+bool GameStat::HasRiseTicked(TickTimer* tickTimer) const
 {
     if (tickTimer->GetAccumulatedTime() >= mRiseTickRate)
     {
@@ -60,7 +60,7 @@ bool GameStats::HasRiseTicked(TickTimer* tickTimer) const
     return false;
 }
 
-void GameStats::UpdateInformationsFrom(unsigned int linesClearedCount)
+void GameStat::UpdateInformationsFrom(unsigned int linesClearedCount)
 {
     mTotalLinesCleared += linesClearedCount;
     mTotalScore += (linesClearedCount * SCORES_PER_CLEAR_LINE);
@@ -71,7 +71,7 @@ void GameStats::UpdateInformationsFrom(unsigned int linesClearedCount)
     mRiseTickRate /= mStageLevel;
 }
 
-void GameStats::Reset()
+void GameStat::Reset()
 {
     mTotalScore = 0;
     mTotalLinesCleared = 0;
