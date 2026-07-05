@@ -17,7 +17,6 @@ public:
     MainBoard(Tetromino* tetromino);
     virtual ~MainBoard();
 
-    // Todo: Move to private
     bool MoveTetrominoOneStep(eDirection direction);
     bool RotateTetrominoCW();
 

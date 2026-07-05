@@ -55,7 +55,6 @@ public:
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
 protected:
-    // Todo: 센터 포지션 하나만 있으면, 나머지 좌표들 모두 계산 가능함. 이렇게 바꾸기
     Position mMoveOffset;
     eRotationState mRotationState;
     eTetrominoType mType;

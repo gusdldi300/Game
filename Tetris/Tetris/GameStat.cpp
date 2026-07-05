@@ -14,9 +14,9 @@ const double GameStat::RISE_TICK_START_RATE = 2.0;
 GameStat::GameStat()
     : mTotalScore(0)
     , mTotalLinesCleared(0)
-    , mStageLevel(1)
-    , mFallTickRate(2.0)
-    , mRiseTickRate(5.0)
+    , mStageLevel(STAGE_START_LEVEL)
+    , mFallTickRate(FALL_TICK_START_RATE)
+    , mRiseTickRate(RISE_TICK_START_RATE)
 {
 }
 

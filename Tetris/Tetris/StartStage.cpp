@@ -12,14 +12,14 @@ const std::wstring StartStage::TITLE_STRING = L"----- TETRIS -----";
 const std::vector<std::wstring> StartStage::MENU_STRINGS =
 {
     L"  GAME START",
-    L"  SETTINGS",
+    //L"  SETTINGS",
     L"  EXIT"
 };
 
 const std::vector<std::wstring> StartStage::SELECTED_MENU_STRINGS =
 {
     L"¢º GAME START",
-    L"¢º SETTINGS",
+    //L"¢º SETTINGS",
     L"¢º EXIT"
 };
 
