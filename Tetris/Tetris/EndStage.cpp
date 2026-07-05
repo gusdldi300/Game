@@ -41,7 +41,6 @@ eStageType EndStage::Update(double deltaTime)
         switch (mSelectedMenu)
         {
         case 0:
-            // Todo: Reset game
             return eStageType::Play;
         case 1:
             PostQuitMessage(0); // Todo: Check

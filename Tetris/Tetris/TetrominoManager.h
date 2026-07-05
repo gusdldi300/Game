@@ -3,6 +3,7 @@
 #include <list>
 
 #include "GameStage.h"
+#include "Tetromino.h"
 
 class Tetromino;
 
@@ -12,15 +13,27 @@ public:
     TetrominoManager();
     virtual ~TetrominoManager();
 
-    void Update();
+    bool HasUsedHold() const;
+    bool HasHoldTetromino() const;
+    void SetHoldTetromino(Tetromino* tetromino);
+    void ResetHold();
+
+    void Reset();
 
     const std::list<Tetromino*> GetNextTetrominoList() const;
-    Tetromino* GetNextTetromino();
+    
+    const Tetromino* GetHoldTetrominoOrNull() const;
+
+    Tetromino* ProvideHoldTetromino();
+    Tetromino* ProvideNextTetromino();
     void Release(Tetromino* tetromino);
 
 private:
     static const unsigned int MAX_NEXT_TETROMINOS_COUNT;
 
     std::list<Tetromino*> mNextTetrominoList;
+
+    Tetromino* mHoldTetrominoOrNull;
+    bool mbHoldUsed;
 };
 

@@ -6,6 +6,10 @@
 const unsigned int GameStats::SCORES_PER_CLEAR_LINE = 100U;
 const unsigned int GameStats::CLEAR_LINES_FOR_LEVEL_UP = 3U;
 
+const unsigned int GameStats::STAGE_START_LEVEL = 1U;
+const double GameStats::FALL_TICK_START_RATE = 2.0;
+const double GameStats::RISE_TICK_START_RATE = 2.0;
+
 // Todo: Magic number
 GameStats::GameStats()
     : mTotalScore(0)
@@ -66,3 +70,13 @@ void GameStats::UpdateInformationsFrom(unsigned int linesClearedCount)
     mFallTickRate /= mStageLevel;
     mRiseTickRate /= mStageLevel;
 }
+
+void GameStats::Reset()
+{
+    mTotalScore = 0;
+    mTotalLinesCleared = 0;
+    mStageLevel = STAGE_START_LEVEL;
+    mFallTickRate = FALL_TICK_START_RATE;
+    mRiseTickRate = RISE_TICK_START_RATE;
+}
+

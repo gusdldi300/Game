@@ -2,12 +2,11 @@
 #include <cassert>
 
 #include "Engine.h"
-#include "TimeManager.h"
+
 #include "KeyManager.h"
 #include "GameStage.h"
 #include "StartStage.h"
 #include "EndStage.h"
-
 
 Engine* Engine::mEngine = nullptr;
 
@@ -142,10 +141,12 @@ void Engine::update()
     if (stageType == eStageType::End)
     {
         unsigned int playStageIndex = static_cast<unsigned int>(eStageType::Play);
-        const GamePlayStage& gamePlayStage = *static_cast<GamePlayStage*>(mGameStages[playStageIndex]);
+        GamePlayStage& gamePlayStage = *static_cast<GamePlayStage*>(mGameStages[playStageIndex]);
 
         EndStage* endStage = static_cast<EndStage*>(mGameStages[currentStageIndex]);
         endStage->UpdateResult(gamePlayStage.GetGameResult());
+
+        gamePlayStage.ResetGame();
     }
 
     mCurrentStage = mGameStages[currentStageIndex];

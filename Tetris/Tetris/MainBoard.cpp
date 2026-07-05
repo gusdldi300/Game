@@ -4,15 +4,12 @@
 
 #include "MainBoard.h"
 #include "KeyManager.h"
-#include "TimeManager.h"
 #include "Tetromino.h"
 
 #include "TetrominoManager.h"
-#include "HoldManager.h"
 
 MainBoard::MainBoard(Tetromino* tetromino)
     : mActiveTetromino(tetromino) 
-    , mHoldTetrominoOrNull(nullptr)
 {
     respawnActiveTetromino();
     
@@ -64,7 +61,6 @@ unsigned int MainBoard::ClearFullLines()
 {
     unsigned int lineClearCount = 0;
 
-    // Todo: Magic number
     for (unsigned int row = SPAWN_ZONE_ROW_SIZE; row < BOARD_ROW_SIZE; ++row)
     {
         bool bLineFull = true;
@@ -98,30 +94,20 @@ unsigned int MainBoard::ClearFullLines()
     return lineClearCount;
 }
 
-void MainBoard::ReleaseActiveTetromino(TetrominoManager* tetrominoManager)
-{
-    tetrominoManager->Release(mActiveTetromino);
-
-    // Todo: nullptr 을 만들면 안됨
-    mActiveTetromino = nullptr;
-}
-
-void MainBoard::SetNextTetrominoFrom(TetrominoManager* tetrominoManager)
+void MainBoard::ReleaseAndSetNextActiveTetrominoFrom(TetrominoManager* tetrominoManager)
 {
     assert(tetrominoManager != nullptr);
+    assert(mActiveTetromino != nullptr);
 
-    mActiveTetromino = tetrominoManager->GetNextTetromino();
+    tetrominoManager->Release(mActiveTetromino);
+    mActiveTetromino = tetrominoManager->ProvideNextTetromino();
+
     respawnActiveTetromino();
 }
 
 const Tetromino* MainBoard::GetActiveTetromino() const
 {
     return mActiveTetromino;
-}
-
-const Tetromino* MainBoard::GetHoldTetrominoOrNull() const
-{
-    return mHoldTetrominoOrNull;
 }
 
 const std::vector<Position> MainBoard::GetGhostTetrominoBlockPositions() const
@@ -166,6 +152,17 @@ bool MainBoard::IsGameOver() const
     return false;
 }
 
+void MainBoard::Reset()
+{
+    for (unsigned int row = 0; row < BOARD_ROW_SIZE; ++row)
+    {
+        for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
+        {
+            mbBoard[row][col] = false;
+        }
+    }
+}
+
 bool MainBoard::MoveTetrominoOneStep(eDirection direction)
 {
     if (canPlaceBlocksOnBoard(mActiveTetromino->GetMovedOneStepPositions(direction)) == false)
@@ -192,33 +189,28 @@ bool MainBoard::RotateTetrominoCW()
 
 bool MainBoard::AddHold(TetrominoManager* tetrominoManager)
 {
-    if (mbHoldUsed || mHoldTetrominoOrNull != nullptr)
+    if (tetrominoManager->HasUsedHold() || tetrominoManager->HasHoldTetromino())
     {
         return false;
     }
 
-    mHoldTetrominoOrNull = mActiveTetromino;
-    mHoldTetrominoOrNull->ResetStates();
-
-    SetNextTetrominoFrom(tetrominoManager);
+    tetrominoManager->SetHoldTetromino(mActiveTetromino);
+    ReleaseAndSetNextActiveTetrominoFrom(tetrominoManager);
 
     return true;
 }
 
 bool MainBoard::UseHold(TetrominoManager* tetrominoManager)
 {
-    if (mbHoldUsed || mHoldTetrominoOrNull == nullptr)
+    if (tetrominoManager->HasUsedHold() || tetrominoManager->HasHoldTetromino() == false)
     {
         return false;
     }
 
-    ReleaseActiveTetromino(tetrominoManager);
+    tetrominoManager->Release(mActiveTetromino);
+    mActiveTetromino = tetrominoManager->ProvideHoldTetromino();
 
-    mActiveTetromino = mHoldTetrominoOrNull;
     respawnActiveTetromino();
-
-    mHoldTetrominoOrNull = nullptr;
-    mbHoldUsed = true;
 
     return true;
 }
@@ -245,12 +237,10 @@ bool MainBoard::canPlaceBlocksOnBoard(const std::vector<Position>& blockPosition
     return true;
 }
 
-// Todo: 이름 변경
 void MainBoard::respawnActiveTetromino()
 {
     assert(mActiveTetromino != nullptr);
 
-    // Todo: Magic number
     mActiveTetromino->ResetStates();
     mActiveTetromino->SetMoveOffset({ SPAWN_TETROMINO_ROW, SPAWN_TETROMINO_COL });
 }

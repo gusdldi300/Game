@@ -2,7 +2,6 @@
 
 #include "MainBoard.h"
 #include "TetrominoManager.h"
-#include "HoldManager.h"
 #include "GameStats.h"
 #include "GameStage.h"
 
@@ -15,6 +14,8 @@ public:
     GameResult GetGameResult() const;
     eStageType Update(double deltaTime) override;
     void Render(HDC memoryDeviceContext) override;
+
+    void ResetGame();
 
 private:
     void drawTetrominoBlocks(HDC memoryDeviceContext, Vector2 drawLeftTopVector, const std::vector<Position>& tetrominoBlocks);

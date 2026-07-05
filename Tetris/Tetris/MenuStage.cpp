@@ -1,7 +1,8 @@
 
+#include <cassert>
+
 #include "MenuStage.h"
 #include "KeyManager.h"
-#include <cassert>
 
 // Todo: Use constexpr
 

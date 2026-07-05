@@ -3,10 +3,9 @@
 #include <cassert>
 
 #include "EndStage.h"
-#include "KeyManager.h"
 
-const float MenuStage::STRING_DRAW_OFFSET = 50.f;
-const float MenuStage::BOX_LENGTH = 250.f;
+const float GameStage::STRING_DRAW_OFFSET = 50.f;
+const float GameStage::BOX_LENGTH = 250.f;
 
 GameStage::GameStage(Vector2 drawStartVector)
     : mDrawStartVector(drawStartVector)

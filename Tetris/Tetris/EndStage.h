@@ -26,4 +26,3 @@ private:
 
     GameResult mResult;
 };
-

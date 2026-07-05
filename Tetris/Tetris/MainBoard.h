@@ -29,17 +29,14 @@ public:
     void LockDownTetromino(TetrominoManager* tetrominoManager);
     bool IsGameOver() const;
 
+    void Reset();
+
     const bool* const* GetGrid() const;
 
-    // Todo: Check later
     const Tetromino* GetActiveTetromino() const;
-    const Tetromino* GetHoldTetrominoOrNull() const;
     const std::vector<Position> GetGhostTetrominoBlockPositions() const;
 
-
-    // Todo: 사용하기 헷갈림
-    void ReleaseActiveTetromino(TetrominoManager* tetrominoManager);
-    void SetNextTetrominoFrom(TetrominoManager* tetrominoManager);
+    void ReleaseAndSetNextActiveTetrominoFrom(TetrominoManager* tetrominoManager);
 
 private:
     bool canPlaceBlocksOnBoard(const std::vector<Position>& blockPositions) const;
@@ -58,8 +55,6 @@ private:
     static const unsigned int SPAWN_TETROMINO_COL = 3U;
 
     Tetromino* mActiveTetromino;
-    Tetromino* mHoldTetrominoOrNull;
-    bool mbHoldUsed;
 
     bool** mbBoard;
 };

@@ -12,12 +12,11 @@ const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 GamePlayStage::GamePlayStage()
     : GameStage({ 0.f, 0.f })
     , mTetrominoManager(new TetrominoManager())
-    //, mMainBoard(new MainBoard(mTetrominoManager->GetNextTetromino()))
     , mGameStats(new GameStats())
     , mFallTickTimer(new TickTimer())
     , mRiseTickTimer(new TickTimer())
 {
-    mMainBoard = new MainBoard(mTetrominoManager->GetNextTetromino());
+    mMainBoard = new MainBoard(mTetrominoManager->ProvideNextTetromino());
 }
 
 GamePlayStage::~GamePlayStage()
@@ -40,7 +39,6 @@ eStageType GamePlayStage::Update(double deltaTime)
 
     double fallTickRate = mGameStats->GetFallTickRate();
     mFallTickTimer->AccumulateTime(deltaTime);
-    
     mRiseTickTimer->AccumulateTime(deltaTime);
 
     if (mGameStats->HasRiseTicked(mRiseTickTimer))
@@ -109,15 +107,19 @@ eStageType GamePlayStage::Update(double deltaTime)
     {
         return eStageType::End;
     }
-    // Todo: Çò°¥¸²
-    mMainBoard->ReleaseActiveTetromino(mTetrominoManager);
-    mMainBoard->SetNextTetrominoFrom(mTetrominoManager);
 
+    mMainBoard->ReleaseAndSetNextActiveTetrominoFrom(mTetrominoManager);
 
     unsigned int clearLinesCount = mMainBoard->ClearFullLines();
     if (clearLinesCount > 0)
     {
+        unsigned int lastLevel = mGameStats->GetStageLevel();
         mGameStats->UpdateInformationsFrom(clearLinesCount);
+
+        if (lastLevel < mGameStats->GetStageLevel())
+        {
+            mTetrominoManager->ResetHold();
+        }
     }
 
     return eStageType::Play;
@@ -148,7 +150,7 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
             holdBoxStartVector.X + BOX_LENGTH,
             holdBoxStartVector.Y + BOX_LENGTH);
 
-        const Tetromino* holdTetrominoOrNull = mMainBoard->GetHoldTetrominoOrNull();
+        const Tetromino* holdTetrominoOrNull = mTetrominoManager->GetHoldTetrominoOrNull();
         if (holdTetrominoOrNull != nullptr)
         {
             // Todo: duplicate
@@ -173,11 +175,11 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
     // Draw walls
     Vector2 wallStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
     {
-        int leftWallStartX = wallStartVector.X;
-        int rightWallStartX = wallStartVector.X + (BLOCK_LENGTH * (GRID_COL_SIZE - 1));
-        for (unsigned int row = 0; row < GRID_ROW_SIZE; ++row)
+        int leftWallStartX = static_cast<int>(wallStartVector.X);
+        int rightWallStartX = static_cast<int>(wallStartVector.X + (BLOCK_LENGTH * (GRID_COL_SIZE - 1)));
+        for (int row = 0; row < GRID_ROW_SIZE; ++row)
         {
-            int wallStartY = wallStartVector.Y + (row * BLOCK_LENGTH);
+            int wallStartY = static_cast<int>(wallStartVector.Y + (row * BLOCK_LENGTH));
 
             Rectangle(memoryDeviceContext,
                 leftWallStartX,
@@ -192,11 +194,11 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
                 wallStartY + BLOCK_LENGTH);
         }
 
-        int upWallStartY = wallStartVector.Y;
-        int downWallStartY = wallStartVector.Y + (BLOCK_LENGTH * (GRID_ROW_SIZE - 1));
+        int upWallStartY = static_cast<int>(wallStartVector.Y);
+        int downWallStartY = static_cast<int>(wallStartVector.Y + (BLOCK_LENGTH * (GRID_ROW_SIZE - 1)));
         for (unsigned int col = 0; col < GRID_COL_SIZE; ++col)
         {
-            int wallStartX = wallStartVector.X + (col * BLOCK_LENGTH);
+            int wallStartX = static_cast<int>(wallStartVector.X + (col * BLOCK_LENGTH));
 
             Rectangle(memoryDeviceContext,
                 wallStartX,
@@ -226,8 +228,8 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
                     continue;
                 }
 
-                int renderStartX = mainBoardStartVector.X + (col * BLOCK_LENGTH);
-                int renderStartY = mainBoardStartVector.Y + (row * BLOCK_LENGTH);
+                int renderStartX = static_cast<int>(mainBoardStartVector.X + (col * BLOCK_LENGTH));
+                int renderStartY = static_cast<int>(mainBoardStartVector.Y + (row * BLOCK_LENGTH));
 
                 Rectangle(memoryDeviceContext,
                     renderStartX,
@@ -273,14 +275,23 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
     }
 }
 
+void GamePlayStage::ResetGame()
+{
+    mMainBoard->Reset();;
+    mTetrominoManager->Reset();
+    mGameStats->Reset();
+    mFallTickTimer->ResetTimer();
+    mRiseTickTimer->ResetTimer();
+}
+
 void GamePlayStage::drawTetrominoBlocks(HDC memoryDeviceContext, Vector2 drawLeftTopVector, const std::vector<Position>& tetrominoBlocks)
 {
     //std::vector<Position> blockPositions = tetromino.GetBlockPositions();
 
     for (const Position& blockPosition : tetrominoBlocks)
     {
-        int renderStartY = drawLeftTopVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH);
-        int renderStartX = drawLeftTopVector.X + (blockPosition.GetCol() * BLOCK_LENGTH);
+        int renderStartY = static_cast<int>(drawLeftTopVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH));
+        int renderStartX = static_cast<int>(drawLeftTopVector.X + (blockPosition.GetCol() * BLOCK_LENGTH));
 
         Rectangle(memoryDeviceContext,
                  renderStartX,

@@ -2,7 +2,6 @@
 #include <cassert>
 #include <random>
 
-#include "Tetromino.h"
 #include "TetrominoManager.h"
 
 class Vector2;
@@ -10,6 +9,8 @@ class Vector2;
 const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_COUNT = 40U;
 
 TetrominoManager::TetrominoManager()
+    : mHoldTetrominoOrNull(nullptr)
+    , mbHoldUsed(false)
 {
     std::random_device randomDevice;
     std::mt19937 gen(randomDevice());
@@ -33,6 +34,40 @@ TetrominoManager::~TetrominoManager()
     }
 }
 
+bool TetrominoManager::HasUsedHold() const
+{
+    return mbHoldUsed;
+}
+
+bool TetrominoManager::HasHoldTetromino() const
+{
+    return mHoldTetrominoOrNull != nullptr ? true : false;
+}
+
+void TetrominoManager::SetHoldTetromino(Tetromino* tetromino)
+{
+    assert(tetromino != nullptr);
+    
+    // Todo: Set and release?
+    mHoldTetrominoOrNull = tetromino;
+    mHoldTetrominoOrNull->ResetStates();
+}
+
+void TetrominoManager::ResetHold()
+{
+    if (mHoldTetrominoOrNull != nullptr)
+    {
+        Release(mHoldTetrominoOrNull);
+    }
+
+    mbHoldUsed = false;
+}
+
+void TetrominoManager::Reset()
+{
+    ResetHold();
+}
+
 void TetrominoManager::Release(Tetromino* tetromino)
 {
     assert(tetromino != nullptr);
@@ -46,7 +81,24 @@ const std::list<Tetromino*> TetrominoManager::GetNextTetrominoList() const
     return mNextTetrominoList;
 }
 
-Tetromino* TetrominoManager::GetNextTetromino()
+const Tetromino* TetrominoManager::GetHoldTetrominoOrNull() const
+{
+    return mHoldTetrominoOrNull;
+}
+
+Tetromino* TetrominoManager::ProvideHoldTetromino()
+{
+    assert(mHoldTetrominoOrNull != nullptr);
+
+    Tetromino* provideTetromino = mHoldTetrominoOrNull;
+    mHoldTetrominoOrNull = nullptr;
+
+    mbHoldUsed = true;
+
+    return provideTetromino;
+}
+
+Tetromino* TetrominoManager::ProvideNextTetromino()
 {
     Tetromino* outTetromino = mNextTetrominoList.front();
     mNextTetrominoList.pop_front();
