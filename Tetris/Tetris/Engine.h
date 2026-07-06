@@ -8,10 +8,9 @@
 class Engine
 {
 public:
-    static Engine* GetInstance();
-    
     static void CreateInstance(HWND hWindow, POINT resolution);
     static void DeleteInstance();
+    static Engine* GetInstance();
 
     HWND GetWindowHandle() const;
     POINT GetWindowResolution() const;
@@ -19,12 +18,11 @@ public:
     void Run();
 
 private:
-    void update();
-    void render();
-
-private:
     Engine(HWND hWindow, POINT resolution);
     ~Engine();
+
+    void update();
+    void render();
 
 private:
     static Engine* mEngine;

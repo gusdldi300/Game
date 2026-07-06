@@ -15,15 +15,17 @@ MenuStage::MenuStage(Vector2 drawStartVector, std::wstring titleString, std::vec
 
 void MenuStage::Render(HDC memoryDeviceContext)
 {
+    Renderer* renderer = Renderer::GetInstance();
+
     // Todo: 텍스트 크기 늘리기
-    drawString(memoryDeviceContext, mDrawStartVector, mTitleString);
+    renderer->DrawString(memoryDeviceContext, mDrawStartVector, mTitleString);
 
     Vector2 selectMenuStartVector = mDrawStartVector;
     for (unsigned int menuIndex = 0; menuIndex < mMenuStrings.size(); ++menuIndex)
     {
-        selectMenuStartVector.Y += DRAW_STRING_OFFSET;
+        selectMenuStartVector.Y += Renderer::DRAW_STRING_OFFSET;
 
-        drawString(memoryDeviceContext, selectMenuStartVector,
+        renderer->DrawString(memoryDeviceContext, selectMenuStartVector,
             (mSelectedMenu == menuIndex) ? mSelectedMenuStrings[menuIndex] : mMenuStrings[menuIndex]);
     }
 }

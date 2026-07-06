@@ -9,6 +9,7 @@
 #include "Engine.h"
 #include "KeyManager.h"
 #include "framework.h"
+#include "Renderer.h"
 
 #define MAX_LOADSTRING 100
 
@@ -40,12 +41,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    // Todo: Magic number
-    POINT windowSize = { 1280, 768 };
-    Engine::CreateInstance(shWindow, windowSize);
-    KeyManager::CreateInstance();
+    // Create instances
+    {
+        // Todo: magic number
+        POINT windowSize = { 1280, 768 };
+        Engine::CreateInstance(shWindow, windowSize);
+        
+        KeyManager::CreateInstance();
+        Renderer::CreateInstance();
+    }
 
     Engine::GetInstance()->Run();
+
+    // Delete instances
+    {
+        Engine::DeleteInstance();
+        KeyManager::DeleteInstance();
+        Renderer::DeleteInstance();
+    }
 
     return 0;
 }

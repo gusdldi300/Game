@@ -8,6 +8,11 @@ Position::Position(int row, int col)
 {
 }
 
+Position::Position(float row, float col)
+    : Position(static_cast<int>(row), static_cast<int>(col))
+{
+}
+
 int Position::GetRow() const
 {
     return mRow;

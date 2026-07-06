@@ -17,8 +17,8 @@ public:
 
     void ResetGame();
 
-private:
-    void drawTetrominoBlocks(HDC memoryDeviceContext, const Vector2& drawLeftTopVector, const std::vector<Position>& tetrominoBlocks);
+public:
+    
 
 private:
     enum
@@ -34,7 +34,6 @@ private:
     static const float DRAW_BOARD_WIDTH;
     static const float BOX_HALF_LENGTH;
 
-    static const float BLOCK_LENGTH;
     static const double SOFT_DROP_SPEED_DIVISOR;
 
     MainBoard* mMainBoard;

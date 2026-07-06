@@ -30,7 +30,7 @@ public:
 
     void Reset();
 
-    const bool* const* GetGrid() const;
+    const eColor* const* GetColorBoard() const;
 
     const Tetromino* GetActiveTetromino() const;
     const std::vector<Position> GetGhostTetrominoBlockPositions() const;
@@ -59,7 +59,7 @@ private:
 
     Tetromino* mActiveTetromino;
 
-    bool** mbBoard;
+    eColor** mColorBoard;
 };
 
 

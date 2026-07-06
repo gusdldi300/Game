@@ -4,6 +4,7 @@
 
 #include "Engine.h"
 #include "KeyManager.h"
+#include "Renderer.h"
 
 KeyManager* KeyManager::mKeyManager = nullptr;
 const int KeyManager::KEYS[static_cast<int>(eKey::Last)] =
@@ -32,7 +33,7 @@ void KeyManager::CreateInstance()
 
 void KeyManager::DeleteInstance()
 {
-    assert(mKeyManager == nullptr);
+    assert(mKeyManager != nullptr);
     
     delete mKeyManager;
 }

@@ -77,6 +77,11 @@ Tetromino::Tetromino(eTetrominoType type)
 {
 }
 
+eColor Tetromino::GetColor() const
+{
+    return static_cast<eColor>(mType);
+}
+
 std::vector<Position> Tetromino::GetBlockPositions() const
 {
     return getTransformedBlockPositions(mRotationState, eDirection::None);

@@ -10,13 +10,6 @@
 
 Engine* Engine::mEngine = nullptr;
 
-Engine* Engine::GetInstance()
-{
-    assert(mEngine != nullptr);
-    
-    return mEngine;
-}
-
 void Engine::CreateInstance(HWND hWindow, POINT resolution)
 {
     assert(mEngine == nullptr);
@@ -32,6 +25,13 @@ void Engine::DeleteInstance()
 
     delete mEngine;
     mEngine = nullptr;
+}
+
+Engine* Engine::GetInstance()
+{
+    assert(mEngine != nullptr);
+
+    return mEngine;
 }
 
 HWND Engine::GetWindowHandle() const
@@ -66,7 +66,6 @@ void Engine::Run()
 
         KeyManager::GetInstance()->Update();
         update();
-
         render();
     }
 }
@@ -112,6 +111,8 @@ Engine::Engine(HWND hWindow, POINT resolution)
 
         mCurrentStage = mGameStages[static_cast<unsigned int>(eStageType::Start)];
     }
+
+    
 }
 
 Engine::~Engine()

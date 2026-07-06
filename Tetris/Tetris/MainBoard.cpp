@@ -13,28 +13,30 @@ MainBoard::MainBoard(Tetromino* tetromino)
 {
     respawnActiveTetromino();
     
-    mbBoard = new bool* [BOARD_ROW_SIZE];
+    mColorBoard = new eColor*[BOARD_ROW_SIZE];
     for (int row = 0; row < BOARD_ROW_SIZE; ++row)
     {
-        mbBoard[row] = new bool[BOARD_COL_SIZE];
+        mColorBoard[row] = new eColor[BOARD_COL_SIZE];
 
-        memset(mbBoard[row], false, sizeof(bool) * BOARD_COL_SIZE);
+        //memset(mColorBoard[row], static_cast<int>(eColor::None), sizeof(eColor) * BOARD_COL_SIZE);
     }
+
+    Reset();
 }
 
 MainBoard::~MainBoard()
 {
     for (int row = 0; row < BOARD_ROW_SIZE; ++row)
     {
-        delete[] mbBoard[row];
+        delete[] mColorBoard[row];
     }
 
-    delete[] mbBoard;
+    delete[] mColorBoard;
 }
 
-const bool* const* MainBoard::GetGrid() const
+const eColor* const* MainBoard::GetColorBoard() const
 {
-    return mbBoard;
+    return mColorBoard;
 }
 
 bool MainBoard::RiseBlocksOneStep()
@@ -43,16 +45,16 @@ bool MainBoard::RiseBlocksOneStep()
     {
         for (unsigned int copyCol = 0; copyCol < BOARD_COL_SIZE; ++copyCol)
         {
-            mbBoard[copyRow][copyCol] = mbBoard[copyRow + 1][copyCol];
+            mColorBoard[copyRow][copyCol] = mColorBoard[copyRow + 1][copyCol];
         }
     }
 
     for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
     {
-        mbBoard[BOARD_ROW_SIZE - 1][col] = true;
+        mColorBoard[BOARD_ROW_SIZE - 1][col] = eColor::DarkGray;
     }
 
-    mbBoard[BOARD_ROW_SIZE - 1][SPAWN_TETROMINO_COL] = false;
+    mColorBoard[BOARD_ROW_SIZE - 1][SPAWN_TETROMINO_COL] = eColor::None;
 
     return IsGameOver();
 }
@@ -67,7 +69,7 @@ unsigned int MainBoard::ClearFullLines()
 
         for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
         {
-            if (mbBoard[row][col] == false)
+            if (mColorBoard[row][col] == eColor::None)
             {
                 bLineFull = false;
 
@@ -86,7 +88,7 @@ unsigned int MainBoard::ClearFullLines()
         {
             for (unsigned int copyCol = 0; copyCol < BOARD_COL_SIZE; ++copyCol)
             {
-                mbBoard[copyRow][copyCol] = mbBoard[copyRow - 1][copyCol];
+                mColorBoard[copyRow][copyCol] = mColorBoard[copyRow - 1][copyCol];
             }
         }
     }
@@ -135,7 +137,7 @@ void MainBoard::LockDownTetromino(TetrominoManager* tetrominoManager)
 {
     for (const Position& blockPosition : mActiveTetromino->GetBlockPositions())
     {
-        mbBoard[blockPosition.GetRow()][blockPosition.GetCol()] = true;
+        mColorBoard[blockPosition.GetRow()][blockPosition.GetCol()] = mActiveTetromino->GetColor();
     }
 }
 
@@ -143,7 +145,7 @@ bool MainBoard::IsGameOver() const
 {
     for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
     {
-        if (mbBoard[SPAWN_ZONE_ROW_SIZE - 1][col])
+        if (mColorBoard[SPAWN_ZONE_ROW_SIZE - 1][col] != eColor::None)
         {
             return true;
         }
@@ -158,7 +160,7 @@ void MainBoard::Reset()
     {
         for (unsigned int col = 0; col < BOARD_COL_SIZE; ++col)
         {
-            mbBoard[row][col] = false;
+            mColorBoard[row][col] = eColor::None;
         }
     }
 }
@@ -228,7 +230,7 @@ bool MainBoard::canPlaceBlocksOnBoard(const std::vector<Position>& blockPosition
             return false;
         }
 
-        if (mbBoard[positionRow][positionCol])
+        if (mColorBoard[positionRow][positionCol] != eColor::None)
         {
             return false;
         }

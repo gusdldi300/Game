@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "eDirection.h"
+#include "eColor.h"
 #include "Position.h"
 
 enum class eTetrominoType
@@ -27,14 +28,14 @@ enum class eRotationState
 
 class MainBoard;
 
-class Tetromino
+class Tetromino final
 {
 public:
     Tetromino(eTetrominoType type);
     virtual ~Tetromino() = default;
     
+    eColor GetColor() const;
     std::vector<Position> GetBlockPositions() const;
-
     std::vector<Position> GetRotatedCWBlockPositions() const;
     std::vector<Position> GetMovedOneStepPositions(eDirection direction) const;
     
@@ -58,18 +59,16 @@ public:
 
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
-protected:
-    Position mMoveOffset;
-    eRotationState mRotationState;
-    eTetrominoType mType;
-
 private:
     enum
     {
         ROTATATION_STATES_COUNT = 4U
     };
 
-    // Todo: magic number
+    Position mMoveOffset;
+    eRotationState mRotationState;
+    eTetrominoType mType;
+
     static const std::vector<Position> BLOCK_POSITIONS[TYPES_COUNT][ROTATATION_STATES_COUNT];
 };
 

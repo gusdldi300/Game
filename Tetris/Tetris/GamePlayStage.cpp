@@ -6,11 +6,10 @@
 #include "KeyManager.h"
 #include "TickTimer.h"
 
-const float GamePlayStage::DRAW_BOARD_HEIGHT = DRAW_BOARD_ROW_SIZE * BLOCK_LENGTH;
-const float GamePlayStage::DRAW_BOARD_WIDTH = DRAW_BOARD_COL_SIZE * BLOCK_LENGTH;
-const float GamePlayStage::BOX_HALF_LENGTH = (BOX_LENGTH / 2);
+const float GamePlayStage::DRAW_BOARD_HEIGHT = GamePlayStage::DRAW_BOARD_ROW_SIZE * Renderer::BLOCK_LENGTH;
+const float GamePlayStage::DRAW_BOARD_WIDTH = GamePlayStage::DRAW_BOARD_COL_SIZE * Renderer::BLOCK_LENGTH;
+const float GamePlayStage::BOX_HALF_LENGTH = (Renderer::BOX_LENGTH / 2);
 
-const float GamePlayStage::BLOCK_LENGTH = 30.f;
 const double GamePlayStage::SOFT_DROP_SPEED_DIVISOR = 5.0;
 
 GamePlayStage::GamePlayStage()
@@ -134,32 +133,36 @@ eStageType GamePlayStage::Update(double deltaTime)
 
 void GamePlayStage::Render(HDC memoryDeviceContext)
 {
+    Renderer* renderer = Renderer::GetInstance();
+
     // Draw hold
-    Vector2 holdBoxStartVector = { DRAW_OFFSET, DRAW_OFFSET };
+    Vector2 holdBoxStartVector = { Renderer::DRAW_OFFSET, Renderer::DRAW_OFFSET };
     {
         assert(holdBoxStartVector.X >= 0.f);
 
-        drawRectangle(memoryDeviceContext, 
+        renderer->DrawRectangle(memoryDeviceContext,
             holdBoxStartVector.X,
             holdBoxStartVector.Y,
-            holdBoxStartVector.X + BOX_LENGTH, 
-            holdBoxStartVector.Y + BOX_LENGTH);
+            holdBoxStartVector.X + Renderer::BOX_LENGTH,
+            holdBoxStartVector.Y + Renderer::BOX_LENGTH);
 
         const Tetromino* holdTetrominoOrNull = mTetrominoManager->GetHoldTetrominoOrNull();
         if (holdTetrominoOrNull != nullptr)
         {
             Vector2 holdTetrominoStartVector = 
             { 
-                holdBoxStartVector.X + BOX_HALF_LENGTH - BLOCK_LENGTH, 
-                holdBoxStartVector.Y + BOX_HALF_LENGTH - BLOCK_LENGTH 
+                holdBoxStartVector.X + BOX_HALF_LENGTH - Renderer::BLOCK_LENGTH,
+                holdBoxStartVector.Y + BOX_HALF_LENGTH - Renderer::BLOCK_LENGTH
             };
 
-            drawTetrominoBlocks(memoryDeviceContext, holdTetrominoStartVector, holdTetrominoOrNull->GetBlockPositions());
+            renderer->DrawBlocks(memoryDeviceContext, holdTetrominoStartVector, 
+                static_cast<eColor>(holdTetrominoOrNull->GetColor()),
+                holdTetrominoOrNull->GetBlockPositions());
         }
     }
 
     // Draw stats
-    Vector2 infoBoxStartVector = { holdBoxStartVector.X, holdBoxStartVector.Y + BOX_LENGTH + DRAW_OFFSET };
+    Vector2 infoBoxStartVector = { holdBoxStartVector.X, holdBoxStartVector.Y + Renderer::BOX_LENGTH + Renderer::DRAW_OFFSET };
     {
         // Todo: Make as function
         std::vector<std::wstring> drawStats;
@@ -169,96 +172,76 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
         drawStats.push_back(scoreString);
         drawStats.push_back(levelString);
 
-        drawStatsBoard(memoryDeviceContext, infoBoxStartVector, drawStats);
+        renderer->DrawStatsBoard(memoryDeviceContext, infoBoxStartVector, drawStats);
     }
 
     // Draw walls
-    Vector2 wallStartVector = { holdBoxStartVector.X + BOX_LENGTH + DRAW_OFFSET, holdBoxStartVector.Y };
+    Vector2 wallStartVector = { holdBoxStartVector.X + Renderer::BOX_LENGTH + Renderer::DRAW_OFFSET, holdBoxStartVector.Y };
     {
-        float leftWallStartX = wallStartVector.X;
-        float rightWallStartX = wallStartVector.X + (BLOCK_LENGTH * (DRAW_BOARD_COL_SIZE - 1));
+        // Todo: Reserve
+        std::vector<Position> wallPositions;
+
+        int leftWallCol = 0;
+        int rightWallCol = DRAW_BOARD_COL_SIZE - 1;
         for (int row = 0; row < DRAW_BOARD_ROW_SIZE; ++row)
         {
-            float wallStartY = wallStartVector.Y + (row * BLOCK_LENGTH);
-
-            drawRectangle(memoryDeviceContext,
-                leftWallStartX,
-                wallStartY,
-                leftWallStartX + BLOCK_LENGTH,
-                wallStartY + BLOCK_LENGTH);
-
-            drawRectangle(memoryDeviceContext,
-                rightWallStartX,
-                wallStartY,
-                rightWallStartX + BLOCK_LENGTH,
-                wallStartY + BLOCK_LENGTH);
+            wallPositions.push_back({ row, leftWallCol });
+            wallPositions.push_back({ row, rightWallCol });
         }
 
-        float upWallStartY = wallStartVector.Y;
-        float downWallStartY = wallStartVector.Y + (BLOCK_LENGTH * (DRAW_BOARD_ROW_SIZE - 1));
-        for (unsigned int col = 0; col < DRAW_BOARD_COL_SIZE; ++col)
+        int upWallRow = 0;
+        int downWallRow = DRAW_BOARD_ROW_SIZE - 1;
+        
+        for (int col = 0; col < DRAW_BOARD_COL_SIZE; ++col)
         {
-            float wallStartX = wallStartVector.X + (col * BLOCK_LENGTH);
-
-            drawRectangle(memoryDeviceContext,
-                wallStartX,
-                upWallStartY,
-                wallStartX + BLOCK_LENGTH,
-                upWallStartY + BLOCK_LENGTH);
-
-            drawRectangle(memoryDeviceContext,
-                wallStartX,
-                downWallStartY,
-                wallStartX + BLOCK_LENGTH,
-                downWallStartY + BLOCK_LENGTH);
+            wallPositions.push_back({ upWallRow, col });
+            wallPositions.push_back({ downWallRow, col });
         }
+
+        renderer->DrawBlocks(memoryDeviceContext, wallStartVector, eColor::LightBlack, wallPositions);
     }
 
     // Draw main board
-    Vector2 mainBoardStartVector = { wallStartVector.X + BLOCK_LENGTH, wallStartVector.Y + BLOCK_LENGTH };
+    Vector2 mainBoardStartVector = { wallStartVector.X + Renderer::BLOCK_LENGTH, wallStartVector.Y + Renderer::BLOCK_LENGTH };
     {
-        const bool* const* drawGrid = mMainBoard->GetGrid();
+        const eColor* const* drawGrid = mMainBoard->GetColorBoard();
 
-        for (unsigned int row = 0; row < MainBoard::BOARD_ROW_SIZE; ++row)
+        for (int row = 0; row < MainBoard::BOARD_ROW_SIZE; ++row)
         {
-            for (unsigned int col = 0; col < MainBoard::BOARD_COL_SIZE; ++col)
+            for (int col = 0; col < MainBoard::BOARD_COL_SIZE; ++col)
             {
-                if (drawGrid[row][col] == false)
+                if (drawGrid[row][col] == eColor::None)
                 {
                     continue;
                 }
 
-                float renderStartX = mainBoardStartVector.X + (col * BLOCK_LENGTH);
-                float renderStartY = mainBoardStartVector.Y + (row * BLOCK_LENGTH);
-
-                drawRectangle(memoryDeviceContext,
-                    renderStartX,
-                    renderStartY,
-                    renderStartX + BLOCK_LENGTH,
-                    renderStartY + BLOCK_LENGTH);
+                renderer->DrawBlock(memoryDeviceContext, mainBoardStartVector, drawGrid[row][col], { row, col });
             }
         }
 
-        drawTetrominoBlocks(memoryDeviceContext, mainBoardStartVector, mMainBoard->GetActiveTetromino()->GetBlockPositions());
+        const Tetromino* activeTetromino = mMainBoard->GetActiveTetromino();
+        renderer->DrawBlocks(memoryDeviceContext, mainBoardStartVector,
+            activeTetromino->GetColor(),
+            activeTetromino->GetBlockPositions());
         
-        std::vector<Position> ghostTetrominoBlocks = mMainBoard->GetGhostTetrominoBlockPositions();
-        drawTetrominoBlocks(memoryDeviceContext, mainBoardStartVector, ghostTetrominoBlocks);
+        renderer->DrawBlocks(memoryDeviceContext, mainBoardStartVector, 
+            eColor::Gray, 
+            mMainBoard->GetGhostTetrominoBlockPositions());
     }
 
     // Draw next tetrominos
-    Vector2 nextBoxStartVector = { wallStartVector.X + (BLOCK_LENGTH * DRAW_BOARD_COL_SIZE) + DRAW_OFFSET, wallStartVector.Y };
+    Vector2 nextBoxStartVector = { wallStartVector.X + (Renderer::BLOCK_LENGTH * DRAW_BOARD_COL_SIZE) + Renderer::DRAW_OFFSET, wallStartVector.Y };
     {
         // Todo: Magic number
-        drawRectangle(memoryDeviceContext,
+        renderer->DrawRectangle(memoryDeviceContext,
             nextBoxStartVector.X,
             nextBoxStartVector.Y,
-            nextBoxStartVector.X + BOX_LENGTH - (BLOCK_LENGTH * 2),
-            nextBoxStartVector.Y + (DRAW_BOARD_HEIGHT - (BLOCK_LENGTH * 2)));
+            nextBoxStartVector.X + Renderer::BOX_LENGTH - (Renderer::BLOCK_LENGTH * 2),
+            nextBoxStartVector.Y + (DRAW_BOARD_HEIGHT - (Renderer::BLOCK_LENGTH * 2)));
 
-        Vector2 nextTetrominoStartVector = { nextBoxStartVector.X + BOX_HALF_LENGTH - (BLOCK_LENGTH * 3), (BLOCK_LENGTH * 2) };
-        
+        Vector2 nextTetrominoStartVector = { nextBoxStartVector.X + BOX_HALF_LENGTH - (Renderer::BLOCK_LENGTH * 3), (Renderer::BLOCK_LENGTH * 2) };
         const std::list<Tetromino*> nextTetrominoList = mTetrominoManager->GetNextTetrominoList();
-
+        
         unsigned int drawCount = DRAW_NEXT_TETROMINOS_COUNT;
         for (const Tetromino* nextTetromino : nextTetrominoList)
         {
@@ -267,9 +250,12 @@ void GamePlayStage::Render(HDC memoryDeviceContext)
                 break;
             }
 
+            renderer->DrawBlocks(memoryDeviceContext, nextTetrominoStartVector, 
+                nextTetromino->GetColor(),
+                nextTetromino->GetBlockPositions());
+            
             // Todo: Magic number
-            drawTetrominoBlocks(memoryDeviceContext, nextTetrominoStartVector, nextTetromino->GetBlockPositions());
-            nextTetrominoStartVector.Y += (DRAW_OFFSET * 4);
+            nextTetrominoStartVector.Y += (Renderer::DRAW_OFFSET * 4);
 
             drawCount--;
         }
@@ -285,19 +271,4 @@ void GamePlayStage::ResetGame()
     mRiseTickTimer->ResetTimer();
 }
 
-void GamePlayStage::drawTetrominoBlocks(HDC memoryDeviceContext, const Vector2& leftTopVector, const std::vector<Position>& tetrominoBlocks)
-{
-    //std::vector<Position> blockPositions = tetromino.GetBlockPositions();
 
-    for (const Position& blockPosition : tetrominoBlocks)
-    {
-        float drawLeftTopX = leftTopVector.X + (blockPosition.GetCol() * BLOCK_LENGTH);
-        float drawLeftTopY = leftTopVector.Y + (blockPosition.GetRow() * BLOCK_LENGTH);
-
-        drawRectangle(memoryDeviceContext,
-            drawLeftTopX,
-            drawLeftTopY,
-            drawLeftTopX + BLOCK_LENGTH, 
-            drawLeftTopY + BLOCK_LENGTH);
-    }
-}

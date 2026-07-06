@@ -4,6 +4,8 @@ class Position
 {
 public:
     Position(int row, int col);
+    Position(float row, float col);
+
     ~Position() = default;
 
     int GetRow() const;
