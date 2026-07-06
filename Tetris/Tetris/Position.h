@@ -1,6 +1,5 @@
 #pragma once
 
-// Todo: Make as class, add operations() methods
 class Position
 {
 public:

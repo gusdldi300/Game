@@ -1,11 +1,6 @@
 
-#include "MainBoard.h"
 #include "Tetromino.h"
-
-const unsigned int Tetromino::TYPES_COUNT = 7U;
-
-const unsigned int DIRECTION_NONE = 10U;
-const unsigned int Tetromino::ROTATATION_STATES_COUNT = 4U;
+#include "MainBoard.h"
 
 const Position Tetromino::ONE_STEP_MOVE_OFFSETS[] =
 {
@@ -16,10 +11,9 @@ const Position Tetromino::ONE_STEP_MOVE_OFFSETS[] =
 };
 
 // Todo: Check s tetromino, akward rotation
-// Todo: magic number
-const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
+const std::vector<Position> Tetromino::BLOCK_POSITIONS[TYPES_COUNT][ROTATATION_STATES_COUNT] =
 {
-    // 1. I 블록
+    // 1. Tetromino I
     {
         { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 0, 3 } }, // Degree 0
         { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 } },
@@ -27,7 +21,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 } }
     },
 
-    // 2. O 블록
+    // 2. Tetromino O
     {
         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
@@ -35,7 +29,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }
     },
 
-    // 3. T 블록
+    // 3. Tetromino T
     {
         { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 1 } },
         { { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 2 } }, 
@@ -43,7 +37,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 2, 0 } } 
     },
 
-    // 4. L 블록
+    // 4. Tetromino L
     {
         { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 } },
         { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 2, 1 } },
@@ -51,7 +45,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 1, 2 }, { 2, 0 }, { 2, 1 }, { 2, 2 } }
     },
 
-    // 5. J_블록
+    // 5. Tetromino J
     {
         { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 2 } },
         { { 0, 2 }, { 1, 2 }, { 2, 1 }, { 2, 2 } },
@@ -59,7 +53,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 2, 0 } }
     },
 
-    // 6. S 블록
+    // 6. Tetromino S
     {
         { { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 } }, 
         { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 2, 1 } },
@@ -67,7 +61,7 @@ const std::vector<Position> Tetromino::BLOCK_POSITIONS[][4] =
         { { 1, 1 }, { 1, 2 }, { 2, 0 }, { 2, 1 } }
     },
 
-    // 7. Z 블록
+    // 7. Tetromino Z
     {
         { { 0, 0 }, { 0, 1 }, { 1, 1 }, { 1, 2 } },
         { { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 } },

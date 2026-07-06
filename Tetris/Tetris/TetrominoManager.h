@@ -29,7 +29,10 @@ public:
     void Release(Tetromino* tetromino);
 
 private:
-    static const unsigned int MAX_NEXT_TETROMINOS_COUNT;
+    enum
+    {
+        MAX_NEXT_TETROMINOS_COUNT = 40U
+    };
 
     std::list<Tetromino*> mNextTetrominoList;
 

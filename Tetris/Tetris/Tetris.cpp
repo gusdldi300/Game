@@ -40,6 +40,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+    // Todo: Magic number
     POINT windowSize = { 1280, 768 };
     Engine::CreateInstance(shWindow, windowSize);
     KeyManager::CreateInstance();

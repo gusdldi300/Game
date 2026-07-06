@@ -1,10 +1,11 @@
 
-
 #include <cassert>
 
 #include "EndStage.h"
 
-const float GameStage::STRING_DRAW_OFFSET = 50.f;
+const float GameStage::DRAW_STRING_OFFSET = 50.f;
+
+const float GameStage::DRAW_OFFSET = 30.f;
 const float GameStage::BOX_LENGTH = 250.f;
 
 GameStage::GameStage(Vector2 drawStartVector)
@@ -12,27 +13,24 @@ GameStage::GameStage(Vector2 drawStartVector)
 {
 }
 
-void GameStage::drawScores(HDC memoryDeviceContext, Vector2 leftTopVector, const std::vector<std::wstring>& statStrings) const
+void GameStage::drawStatsBoard(HDC deviceContext, const Vector2& leftTopVector, const std::vector<std::wstring>& statStrings) const
 {
-    const unsigned int STRING_BOX_HEIGHT = STRING_DRAW_OFFSET * (statStrings.size() + 1);
+    // Todo: Strings size maybe const
+    const float STRING_BOX_HEIGHT = GameStage::DRAW_STRING_OFFSET * (statStrings.size() + 1);
 
-    Rectangle(memoryDeviceContext,
+    drawRectangle(deviceContext,
         leftTopVector.X,
         leftTopVector.Y,
         leftTopVector.X + BOX_LENGTH,
-        leftTopVector.Y + STRING_BOX_HEIGHT);
+        leftTopVector.Y + STRING_BOX_HEIGHT + DRAW_OFFSET);
 
     Vector2 drawStringVector = leftTopVector;
-    drawStringVector.X += STRING_DRAW_OFFSET;
+    drawStringVector.X += DRAW_STRING_OFFSET;
 
     for (const std::wstring& statString : statStrings)
     {
-        drawStringVector.Y += STRING_DRAW_OFFSET;
-
-        TextOut(memoryDeviceContext,
-            drawStringVector.X,
-            drawStringVector.Y,
-            statString.c_str(), statString.length());
+        drawStringVector.Y += DRAW_STRING_OFFSET;
+        drawString(deviceContext, drawStringVector, statString);
     }
 }
 

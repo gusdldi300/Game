@@ -43,15 +43,19 @@ private:
     //void moveBlocksOneStep(std::vector<Position>* outBlockPositions, eDirection direction);
 
 public:
-    // Todo: 쓸모없는 정적 변수 너무 많음, cpp 에 초기화하기
-    static const unsigned int SPAWN_ZONE_ROW_SIZE = 2U;
-
-    static const unsigned int BOARD_ROW_SIZE = 20U + SPAWN_ZONE_ROW_SIZE;
-    static const unsigned int BOARD_COL_SIZE = 10U;
+    enum
+    {
+        SPAWN_ZONE_ROW_SIZE = 2U,
+        BOARD_ROW_SIZE = 20U + SPAWN_ZONE_ROW_SIZE,
+        BOARD_COL_SIZE = 10U
+    };
 
 private:
-    static const unsigned int SPAWN_TETROMINO_ROW = 0U;
-    static const unsigned int SPAWN_TETROMINO_COL = 3U;
+    enum
+    {
+        SPAWN_TETROMINO_ROW = 0U,
+        SPAWN_TETROMINO_COL = 3U
+    };
 
     Tetromino* mActiveTetromino;
 

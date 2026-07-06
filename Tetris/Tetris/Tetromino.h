@@ -51,7 +51,11 @@ private:
     std::vector<Position> getTransformedBlockPositions(eRotationState rotationState, eDirection direction) const;
 
 public:
-    static const unsigned int TYPES_COUNT;
+    enum
+    {
+        TYPES_COUNT = 7U
+    };
+
     static const Position ONE_STEP_MOVE_OFFSETS[];
 
 protected:
@@ -60,10 +64,12 @@ protected:
     eTetrominoType mType;
 
 private:
-    static const unsigned int ROTATATION_STATES_COUNT;
-    static const unsigned int DIRECTION_NONE;
+    enum
+    {
+        ROTATATION_STATES_COUNT = 4U
+    };
 
     // Todo: magic number
-    static const std::vector<Position> BLOCK_POSITIONS[][4];
+    static const std::vector<Position> BLOCK_POSITIONS[TYPES_COUNT][ROTATATION_STATES_COUNT];
 };
 

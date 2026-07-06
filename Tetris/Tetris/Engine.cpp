@@ -44,7 +44,7 @@ POINT Engine::GetWindowResolution() const
     return mWindowResolution;
 }
 
-// 매 프레임마다 호출됨
+// Calls every frame
 void Engine::Run()
 {
     MSG msg;
@@ -154,10 +154,14 @@ void Engine::update()
 
 void Engine::render()
 {
-    Rectangle(mhMemoryDeviceContext, -1, -1, mWindowResolution.x + 1, mWindowResolution.y + 1);
+    int windowResolutionX = static_cast<int>(mWindowResolution.x);
+    int windowResolutionY = static_cast<int>(mWindowResolution.y);
+
+
+    Rectangle(mhMemoryDeviceContext, -1, -1, windowResolutionX + 1, windowResolutionY + 1);
 
     mCurrentStage->Render(mhMemoryDeviceContext);
 
-    BitBlt(mhWindowDeviceContext, 0, 0, mWindowResolution.x, mWindowResolution.y,
+    BitBlt(mhWindowDeviceContext, 0, 0, windowResolutionX, windowResolutionY,
         mhMemoryDeviceContext, 0, 0, SRCCOPY);
 }

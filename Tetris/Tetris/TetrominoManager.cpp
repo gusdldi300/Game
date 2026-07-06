@@ -3,10 +3,7 @@
 #include <random>
 
 #include "TetrominoManager.h"
-
-class Vector2;
-
-const unsigned int TetrominoManager::MAX_NEXT_TETROMINOS_COUNT = 40U;
+#include "Vector2.h"
 
 TetrominoManager::TetrominoManager()
     : mHoldTetrominoOrNull(nullptr)

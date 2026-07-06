@@ -3,12 +3,8 @@
 #include "GameStat.h"
 #include "TickTimer.h"
 
-const unsigned int GameStat::SCORES_PER_CLEAR_LINE = 100U;
-const unsigned int GameStat::CLEAR_LINES_FOR_LEVEL_UP = 3U;
-
-const unsigned int GameStat::STAGE_START_LEVEL = 1U;
 const double GameStat::FALL_TICK_START_RATE = 2.0;
-const double GameStat::RISE_TICK_START_RATE = 2.0;
+const double GameStat::RISE_TICK_START_RATE = 5.0;
 
 // Todo: Magic number
 GameStat::GameStat()

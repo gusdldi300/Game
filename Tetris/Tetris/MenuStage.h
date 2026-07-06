@@ -5,7 +5,6 @@
 
 #include "GameStage.h"
 
-// Todo: 외부에서 생성 못하게 하기
 class MenuStage : public GameStage
 {
 public:
@@ -22,7 +21,6 @@ protected:
     unsigned int mSelectedMenu;
 
 private:
-
     std::wstring mTitleString;
     std::vector<std::wstring> mMenuStrings;
     std::vector<std::wstring> mSelectedMenuStrings;

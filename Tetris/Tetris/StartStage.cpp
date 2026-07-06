@@ -5,7 +5,8 @@
 #include "StartStage.h"
 #include "KeyManager.h"
 
-// Todo: Use constexpr or macro
+const Vector2 StartStage::LEFT_TOP_DRAW_VECTOR = { 550.f, 250.f };
+
 const std::wstring StartStage::TITLE_STRING = L"----- TETRIS -----";
 
 // Todo: Add LOAD
@@ -24,7 +25,7 @@ const std::vector<std::wstring> StartStage::SELECTED_MENU_STRINGS =
 };
 
 StartStage::StartStage()
-    : MenuStage({ 550.f, 250.f }, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
+    : MenuStage(LEFT_TOP_DRAW_VECTOR, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
 {
 }
 

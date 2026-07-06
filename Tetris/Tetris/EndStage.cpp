@@ -21,7 +21,7 @@ const std::vector<std::wstring> EndStage::SELECTED_MENU_STRINGS =
 };
 
 EndStage::EndStage()
-    : MenuStage({ 450.f, 200.f }, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
+    : MenuStage(LEFT_TOP_DRAW_VECTOR, TITLE_STRING, MENU_STRINGS, SELECTED_MENU_STRINGS)
     , mResult({ 0, })
 {
 }
@@ -59,7 +59,7 @@ void EndStage::Render(HDC memoryDeviceContext)
     MenuStage::Render(memoryDeviceContext);
 
     Vector2 drawScoreLeftTopVector = LEFT_TOP_DRAW_VECTOR;
-    drawScoreLeftTopVector.Y += (MENU_STRINGS.size() * STRING_DRAW_OFFSET) + STRING_DRAW_OFFSET;
+    drawScoreLeftTopVector.Y += (MENU_STRINGS.size() * DRAW_STRING_OFFSET) + DRAW_STRING_OFFSET;
 
     std::vector<std::wstring> drawStats;
     std::wstring scoreString = L"Final Score: " + std::to_wstring(mResult.Score);
@@ -70,7 +70,7 @@ void EndStage::Render(HDC memoryDeviceContext)
     drawStats.push_back(levelString);
     drawStats.push_back(linesClearedString);
 
-    drawScores(memoryDeviceContext, drawScoreLeftTopVector, drawStats);
+    drawStatsBoard(memoryDeviceContext, drawScoreLeftTopVector, drawStats);
 }
 
 

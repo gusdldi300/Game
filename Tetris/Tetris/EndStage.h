@@ -6,7 +6,7 @@
 #include "GameResult.h"
 #include "MenuStage.h"
 
-class EndStage : public MenuStage
+class EndStage final : public MenuStage
 {
 public:
     EndStage();
