@@ -1,10 +1,12 @@
-*.sln
-*.vcxproj
-*.vcxproj.filters
+#*.sln
+*.user
+
+#*.vcxproj
+#*.vcxproj.filters
 *.clang-format
 *.ini
-*.iso
-*.ico
+#*.iso
+#*.ico
 
 *.jpg
 *.png
